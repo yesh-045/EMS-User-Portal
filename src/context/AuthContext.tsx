@@ -41,13 +41,11 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userRollNo, setUserRollNo] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const setUserAndRollNo = (userData: UserProfile | null) => {
     setUser(userData);
-    setUserRollNo(userData?.rollno || null);
   };
 
   useEffect(() => {

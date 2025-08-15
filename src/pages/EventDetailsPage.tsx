@@ -14,7 +14,7 @@ import {
 } from '../api';
 import type { EventListItem, RegisteredEvent, TeamMember } from '../types/user';
 import { showToast } from '../utils/toast';
-import { AiOutlineArrowLeft, AiOutlineCalendar, AiOutlineEnvironment, AiOutlineTag, AiOutlineTeam, AiOutlineCheckCircle } from 'react-icons/ai';
+import { AiOutlineArrowLeft, AiOutlineCalendar, AiOutlineEnvironment, AiOutlineTag, AiOutlineTeam, AiOutlineCheckCircle, AiOutlineBank } from 'react-icons/ai';
 
 const EventDetailsPage: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -303,6 +303,18 @@ const EventDetailsPage: React.FC = () => {
                     <p className="font-medium text-text">{event.venue}</p>
                   </div>
                 </div>
+                
+                {'club_name' in event && event.club_name && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <AiOutlineBank className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-text-secondary">Organized by</p>
+                      <p className="font-medium text-text">{event.club_name}</p>
+                    </div>
+                  </div>
+                )}
                 
                 {'event_type' in event && (
                   <div className="flex items-center gap-3">

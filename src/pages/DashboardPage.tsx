@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import { getRegisteredEvents, getOngoingEvents, getUpcomingEvents, fetchInvitations } from '../api';
 import type { RegisteredEvent, EventListItem, InviteWithDetails } from '../types/user';
 import EventCard from '../components/EventCard';
+import RegisteredEvents from '../components/RegisteredEvents';
 import { 
   AiOutlineCheckCircle, 
   AiOutlineCalendar, 
@@ -106,40 +107,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* Registered Events Section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-text">Your Registered Events</h2>
-            {registeredEvents.length > 0 && (
-              <span className="text-sm text-text-secondary">
-                {registeredEvents.length} event{registeredEvents.length !== 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-          
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
-              <span className="ml-3 text-text-secondary">Loading events...</span>
-            </div>
-          ) : registeredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 place-items-center">
-              {registeredEvents.map((registration) => (
-                <EventCard
-                  key={registration.team_id}
-                  event={registration.event}
-                  isRegistered={true}
-                  teamName={registration.team_name}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-surface rounded-lg p-8 text-center border border-border">
-              <AiOutlineCheckCircle className="w-16 h-16 mx-auto text-text-secondary mb-4" />
-              <p className="text-text-secondary text-lg">No registered events yet</p>
-              <p className="text-text-secondary text-sm mt-1">Browse events below to get started</p>
-            </div>
-          )}
-        </section>
+        <RegisteredEvents />
 
         {/* All Events Section with Filters */}
         <section className="space-y-4">

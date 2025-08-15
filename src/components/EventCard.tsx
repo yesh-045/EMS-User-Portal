@@ -2,7 +2,7 @@
 import React from 'react';
 import type { EventListItem, RegisteredEventData } from '../types/user';
 import { useNavigate } from 'react-router-dom';
-import { AiOutlineCalendar, AiOutlineEnvironment, AiOutlineTag, AiOutlineTeam } from 'react-icons/ai';
+import { AiOutlineCalendar, AiOutlineEnvironment, AiOutlineTag, AiOutlineTeam, AiOutlineBank } from 'react-icons/ai';
 
 interface EventCardProps {
   event: EventListItem | RegisteredEventData;
@@ -17,7 +17,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) 
   };
   return (
     <div
-      className="bg-surface rounded-xl shadow-md overflow-hidden border border-border hover:border-accent hover:shadow-lg transition-all duration-200 cursor-pointer group max-w-sm w-full"
+      className="bg-surface rounded-xl shadow-md overflow-hidden border border-border hover:border-accent hover:shadow-lg transition-all duration-200 cursor-pointer group w-full"
       onClick={handleClick}
     >
       <div className="aspect-[4/3] w-full bg-secondary relative overflow-hidden">
@@ -30,15 +30,15 @@ const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) 
           }}
         />
         {'status' in event && (
-          <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium shadow-lg ${
-            event.status === 'ongoing' ? 'bg-accent text-primary' :
-            event.status === 'upcoming' ? 'bg-accent/80 text-primary' : 'bg-text-secondary text-background'
+          <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium shadow-lg border ${
+            event.status === 'ongoing' ? 'bg-green-500 text-white border-green-400' :
+            event.status === 'upcoming' ? 'bg-blue-500 text-white border-blue-400' : 'bg-gray-600 text-white border-gray-500'
           }`}>
             {event.status}
           </div>
         )}
         {isRegistered && (
-          <div className="absolute top-3 left-3 bg-accent/90 text-primary px-2 py-1 rounded-full text-xs font-medium shadow-lg">
+          <div className="absolute top-3 left-3 bg-emerald-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg border border-emerald-400">
             ✓ Registered
           </div>
         )}
@@ -62,6 +62,12 @@ const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) 
             <AiOutlineEnvironment className="w-4 h-4 text-accent flex-shrink-0" />
             <span className="line-clamp-1">{event.venue}</span>
           </div>
+          {('club_name' in event && event.club_name) && (
+            <div className="flex items-center gap-2 text-text-secondary">
+              <AiOutlineBank className="w-4 h-4 text-accent flex-shrink-0" />
+              <span className="line-clamp-1">{event.club_name}</span>
+            </div>
+          )}
           {'event_type' in event && (
             <div className="flex items-center gap-2 text-text-secondary">
               <AiOutlineTag className="w-4 h-4 text-accent flex-shrink-0" />
