@@ -24,7 +24,6 @@ const SignupPage: React.FC = () => {
 
   const [errors, setErrors] = useState<Partial<Record<keyof SignupFormData, string>>>({});
   const [showEmailModal, setShowEmailModal] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const departments = [
@@ -116,7 +115,6 @@ const SignupPage: React.FC = () => {
       await generateEmailCode(formData.rollno);
       
       // Show the email verification modal
-      setEmailSent(true);
       setShowEmailModal(true);
     } catch (error: any) {
       console.error('Email generation error:', error);

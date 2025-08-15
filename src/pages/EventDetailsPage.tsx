@@ -13,14 +13,11 @@ import {
   fetchProfile
 } from '../api';
 import type { EventListItem, RegisteredEvent, TeamMember } from '../types/user';
-
-import { toast } from 'react-toastify';
-const rollNo = '23n237';
+import { showToast } from '../utils/toast';
 const EventDetailsPage: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
   const [currentUserRollNo, setCurrentUserRollNo] = useState<string | null>(null);
-  const [removingMember, setRemovingMember] = useState<number | null>(null);
   const [event, setEvent] = useState<EventListItem | null>(null);
   const [registered, setRegistered] = useState<RegisteredEvent | null>(null);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -107,7 +104,7 @@ const EventDetailsPage: React.FC = () => {
         }
       }
 
-      const response = await registerForEvent({
+      await registerForEvent({
         event_id: parseInt(eventId),
         teamName: teamName || undefined
       });
@@ -116,7 +113,7 @@ const EventDetailsPage: React.FC = () => {
       window.location.reload();
     } catch (error) {
       console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
+      showToast.error('Registration failed. Please try again.');
     } finally {
       setRegistering(false);
     }
@@ -151,6 +148,7 @@ const EventDetailsPage: React.FC = () => {
         event_id: parseInt(eventId)
       });
 
+      showToast.success('Invitation sent successfully!');
       setInviteStatus('Invitation sent successfully!');
       setInviteRoll('');
       setFoundUserId(null);
@@ -161,13 +159,14 @@ const EventDetailsPage: React.FC = () => {
       }, 2000);
     } catch (error) {
       console.error('Invitation error:', error);
+      showToast.error('Failed to send invitation. Please try again.');
       setInviteStatus('Failed to send invitation. Please try again.');
     }
   };
 
   const handleRemoveMember = async (memberId: number) => {
   if (!currentUserRollNo) {
-    toast.error("Unable to verify your identity");
+    showToast.error("Unable to verify your identity");
     return;
   }
 
@@ -176,7 +175,7 @@ const EventDetailsPage: React.FC = () => {
 
   // Compare by roll number
   if (memberToRemove.rollno === currentUserRollNo) {
-    toast.error("You cannot remove yourself");
+    showToast.error("You cannot remove yourself");
     return;
   }
 
@@ -187,9 +186,9 @@ const EventDetailsPage: React.FC = () => {
       user_id: memberId
     });
     setTeamMembers(prev => prev.filter(m => m.id !== memberId));
-    toast.success("Member removed successfully");
+    showToast.success("Member removed successfully");
   } catch (error) {
-    toast.error("Failed to remove member");
+    showToast.error("Failed to remove member");
   }
 };
 
@@ -417,9 +416,8 @@ const EventDetailsPage: React.FC = () => {
     variant="outline"
     onClick={() => handleRemoveMember(member.id)}
     className="text-red-500 hover:text-red-600 hover:border-red-500"
-    disabled={removingMember === member.id}
   >
-    {removingMember === member.id ? 'Removing...' : 'Remove'}
+    Remove
   </Button>
 )}
                   </div>

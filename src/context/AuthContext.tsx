@@ -10,7 +10,7 @@ import {
   refreshAccessToken
 } from '../api';
 import { showToast } from '../utils/toast';
-import type { User, LoginCredentials, SignupFormData } from '../types/user';
+import type { User, LoginCredentials, SignupFormData} from '../types/user';
 
 interface AuthContextType {
   user: User | null;
@@ -57,7 +57,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const isAuth = await checkAuthStatus();
         if (isAuth) {
           const userData = await getCurrentUser();
-          setUserAndRollNo(userData.user);
+          setUserAndRollNo(userData);
           setIsAuthenticated(true);
         }
       } catch (error) {
@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await refreshAccessToken();
       const userData = await getCurrentUser();
-      setUserAndRollNo(userData.user);
+      setUserAndRollNo(userData);
       setIsAuthenticated(true);
     } catch (error: any) {
       console.error('Token refresh failed:', error);

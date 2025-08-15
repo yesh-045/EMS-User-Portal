@@ -25,7 +25,8 @@ import type {
   FetchTeamMembersResponse,
   RemoveTeamMemberRequest,
   RemoveTeamMemberResponse,
-  EventListResponse
+  EventListResponse,
+  UserProfile
 } from './types/user';
 
 // Extend AxiosRequestConfig to include a private _retry flag
@@ -116,7 +117,7 @@ export const refreshAccessToken = async (): Promise<{ message: string }> => {
   return response.data;
 };
 
-export const getCurrentUser = async (): Promise<{ user: User }> => {
+export const getCurrentUser = async (): Promise<UserProfile> => {
   const response = await api.get('/auth/user/status');
   return response.data;
 };
