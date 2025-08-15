@@ -10,6 +10,7 @@ export interface UserProfile {
 
 export interface User extends UserProfile {
   id?: number;
+  rollno: string;
   password?: string;
 }
 
@@ -206,9 +207,17 @@ export interface EventListResponse {
   data: EventListItem[];
 }
 
+// In your types/user.ts
 export interface FetchProfileResponse {
   message: string;
-  profile: UserProfile;
+  profile: {
+    name: string;
+    rollno: string;
+    department: string;
+    email: string;
+    phoneno: string;
+    yearofstudy: number;
+  };
 }
 
 export interface GetRegisteredEventsResponse {

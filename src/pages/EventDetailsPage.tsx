@@ -9,16 +9,18 @@ import {
   getUserIdByRollNo,
   removeTeamMember,
   getOngoingEvents,
-  getUpcomingEvents
+  getUpcomingEvents,
+  fetchProfile
 } from '../api';
 import type { EventListItem, RegisteredEvent, TeamMember } from '../types/user';
-import { useAuth } from '../context/AuthContext';
 
+import { toast } from 'react-toastify';
+const rollNo = '23n237';
 const EventDetailsPage: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
-  const { user } = useAuth();
   const navigate = useNavigate();
-  
+  const [currentUserRollNo, setCurrentUserRollNo] = useState<string | null>(null);
+  const [removingMember, setRemovingMember] = useState<number | null>(null);
   const [event, setEvent] = useState<EventListItem | null>(null);
   const [registered, setRegistered] = useState<RegisteredEvent | null>(null);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
@@ -31,6 +33,20 @@ const EventDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
 
+  
+  useEffect(() => {
+  const fetchRollNo = async () => {
+    try {
+      const response = await fetchProfile();
+      setCurrentUserRollNo(response.profile.rollno); // Access through response.profile
+    } catch (error) {
+      console.error("Failed to fetch roll number:", error);
+      setCurrentUserRollNo(null);
+    }
+  };
+
+  fetchRollNo();
+}, []);
   useEffect(() => {
     const fetchData = async () => {
       if (!eventId) return;
@@ -76,7 +92,7 @@ const EventDetailsPage: React.FC = () => {
 
     fetchData();
   }, [eventId]);
-
+  
   const handleRegister = async () => {
     if (!event || !eventId) return;
 
@@ -149,26 +165,33 @@ const EventDetailsPage: React.FC = () => {
     }
   };
 
-  const handleRemoveMember = async (userId: number) => {
-    if (!eventId || !user || userId === user.id) return;
+  const handleRemoveMember = async (memberId: number) => {
+  if (!currentUserRollNo) {
+    toast.error("Unable to verify your identity");
+    return;
+  }
 
-    const confirmRemove = window.confirm('Are you sure you want to remove this team member?');
-    if (!confirmRemove) return;
+  const memberToRemove = teamMembers.find(member => member.id === memberId);
+  if (!memberToRemove) return;
 
-    try {
-      await removeTeamMember({
-        event_id: parseInt(eventId),
-        user_id: userId
-      });
+  // Compare by roll number
+  if (memberToRemove.rollno === currentUserRollNo) {
+    toast.error("You cannot remove yourself");
+    return;
+  }
 
-      // Remove member from local state
-      setTeamMembers(prev => prev.filter(member => member.id !== userId));
-      setInviteStatus('Member removed successfully');
-    } catch (error) {
-      console.error('Remove member error:', error);
-      alert('Failed to remove member. Please try again.');
-    }
-  };
+  // Rest of your existing removal logic...
+  try {
+    await removeTeamMember({
+      event_id: parseInt(eventId!),
+      user_id: memberId
+    });
+    setTeamMembers(prev => prev.filter(m => m.id !== memberId));
+    toast.success("Member removed successfully");
+  } catch (error) {
+    toast.error("Failed to remove member");
+  }
+};
 
   const closeInvitePopup = () => {
     setShowInvite(false);
@@ -388,16 +411,17 @@ const EventDetailsPage: React.FC = () => {
                       <div className="text-sm text-text-secondary">{member.email}</div>
                     </div>
                     
-                    {user && member.id !== user.id && event.status !== 'past' && (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => handleRemoveMember(member.id)}
-                        className="text-red-500 hover:text-red-600 hover:border-red-500"
-                      >
-                        Remove
-                      </Button>
-                    )}
+                    {currentUserRollNo && member.rollno !== currentUserRollNo && event.status !== 'past' && (
+  <Button 
+    size="sm"
+    variant="outline"
+    onClick={() => handleRemoveMember(member.id)}
+    className="text-red-500 hover:text-red-600 hover:border-red-500"
+    disabled={removingMember === member.id}
+  >
+    {removingMember === member.id ? 'Removing...' : 'Remove'}
+  </Button>
+)}
                   </div>
                 ))}
               </div>
