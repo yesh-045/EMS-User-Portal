@@ -9,7 +9,7 @@ import type { SignupFormData } from '../types/user';
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signup, completeSignup } = useAuth();
+  const { generateEmailCode, completeSignup } = useAuth();
   
   const [formData, setFormData] = useState<SignupFormData>({
     name: '',
@@ -110,22 +110,24 @@ const SignupPage: React.FC = () => {
     }
 
     setIsSubmitting(true);
+    
+    // Step 1: Generate email verification code
     try {
-      await signup(formData);
+      await generateEmailCode(formData.rollno);
+      
+      // Show the email verification modal
+      setEmailSent(true);
+      setShowEmailModal(true);
     } catch (error: any) {
-      if (error.message === 'EMAIL_VERIFICATION_REQUIRED') {
-        setEmailSent(true);
-        setShowEmailModal(true);
-      } else {
-        console.error('Signup error:', error);
-        showToast.error(error.message || 'Error creating account. Please try again.');
-      }
+      console.error('Email generation error:', error);
+      showToast.error(error.message || 'Failed to send verification email. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleEmailVerification = async (code: string) => {
+    setIsSubmitting(true);
     try {
       await completeSignup(formData, code);
       setShowEmailModal(false);
@@ -134,6 +136,8 @@ const SignupPage: React.FC = () => {
     } catch (error: any) {
       console.error('Email verification error:', error);
       showToast.error(error.message || 'Invalid verification code. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

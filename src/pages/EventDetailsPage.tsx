@@ -205,7 +205,7 @@ const EventDetailsPage: React.FC = () => {
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-1/2">
           <img
-            src={`${import.meta.env.VITE_BACKEND_URL}/events/poster/${event.id}`}
+            src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
             alt={event.name}
             className="w-full h-80 object-cover rounded-lg border border-border"
             onError={(e) => {

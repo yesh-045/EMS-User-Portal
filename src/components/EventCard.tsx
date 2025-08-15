@@ -21,7 +21,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) 
     >
       <div className="aspect-video w-full bg-secondary relative">
         <img
-          src={`${import.meta.env.VITE_BACKEND_URL}/events/poster/${event.id}`}
+          src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
           alt={event.name}
           className="w-full h-full object-cover"
           onError={e => {
