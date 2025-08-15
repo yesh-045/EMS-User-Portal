@@ -1,166 +1,156 @@
 # EMS User Portal
 
-A modern, responsive React TypeScript application for student registration and authentication built with Vite and Tailwind CSS.
+A modern React TypeScript application for student authentication and management with comprehensive auth flow, built with Vite and Tailwind CSS.
 
-## Features
+## 🚀 Quick Start
 
-- ✨ Modern, responsive design optimized for mobile and desktop
-- 🎨 Dark/Light theme support with CSS variables
-- 🔐 User registration with comprehensive form validation
-- 🔑 Login functionality
-- 📱 Mobile-first responsive design
-- ⚡ Fast development with Vite
-- 🎯 TypeScript for type safety
-- 🎨 Tailwind CSS for styling
-
-## Database Schema
-
-The application is designed to work with the following user schema:
-
-```sql
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    name TEXT,
-    rollno VARCHAR(50) UNIQUE,
-    password TEXT,
-    department TEXT,
-    email VARCHAR(100) UNIQUE,
-    phoneno BIGINT UNIQUE,
-    yearofstudy INTEGER
-);
-```
-
-## Quick Start
-
-1. **Install dependencies:**
+1. **Clone and install dependencies:**
    ```bash
    npm install
    ```
 
-2. **Start the development server:**
+2. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   # Configure VITE_BACKEND_URL in .env
+   ```
+
+3. **Start development server:**
    ```bash
    npm run dev
    ```
 
-3. **Open your browser and navigate to:**
-   ```
-   http://localhost:5173
-   ```
+## 🛠️ Tech Stack
 
-## Available Scripts
+- **React 18** + **TypeScript** - Modern React with full type safety
+- **Vite** - Fast build tool and dev server
+- **Tailwind CSS v3** - Utility-first CSS framework
+- **React Router DOM** - Client-side routing
+- **Axios** - HTTP client with interceptors
+- **React Hot Toast** - Toast notifications
+- **CSS Variables** - Dynamic theming system
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-
-## Project Structure
+## 🏗️ Project Structure
 
 ```
 src/
-├── components/          # Reusable UI components
-│   ├── Button.tsx      # Custom button component
-│   ├── Input.tsx       # Custom input component
-│   └── ThemeToggle.tsx # Theme switcher component
-├── context/            # React contexts
-│   └── ThemeContext.tsx # Theme management
-├── pages/              # Page components
-│   ├── SignupPage.tsx  # User registration page
-│   └── LoginPage.tsx   # User login page
-├── types/              # TypeScript type definitions
-│   └── user.ts         # User-related types
-├── App.tsx             # Main application component
-├── main.tsx            # Application entry point
-└── index.css           # Global styles and CSS variables
+├── api.ts                    # API client with interceptors
+├── components/
+│   ├── AuthGuard.tsx        # Prevents auth'd users from auth pages
+│   ├── Button.tsx           # Reusable button component
+│   ├── EmailVerificationModal.tsx  # Email verification UI
+│   ├── Input.tsx            # Form input component
+│   ├── ProtectedRoute.tsx   # Route protection for auth'd users
+│   ├── ThemeToggle.tsx      # Dark/light theme switcher
+│   └── ToastProvider.tsx    # Toast notification provider
+├── context/
+│   ├── AuthContext.tsx      # Authentication state management
+│   └── ThemeContext.tsx     # Theme state management
+├── pages/
+│   ├── DashboardPage.tsx    # Protected dashboard
+│   ├── ForgotPasswordPage.tsx  # 3-step password reset flow
+│   ├── HomePage.tsx         # Smart routing based on auth status
+│   ├── LoginPage.tsx        # Authentication page
+│   └── SignupPage.tsx       # Registration with email verification
+├── types/
+│   └── user.ts              # TypeScript interfaces
+├── utils/
+│   └── toast.ts             # Themed toast utilities
+├── App.tsx                  # Main app with routing
+└── main.tsx                 # Entry point
 ```
 
-## Theme Customization
+## 🔐 Authentication Flow
 
-The application uses CSS variables for easy theme customization. You can modify the theme colors in `src/index.css`:
+### Route Protection
+- **`AuthGuard`** - Redirects authenticated users away from auth pages
+- **`ProtectedRoute`** - Requires authentication for access
+- **`HomePage`** - Smart routing: `/dashboard` if auth'd, `/signup` if not
 
-### Dark Theme Variables
+### Features Implemented
+- ✅ User registration with email verification
+- ✅ Login with secure credential validation
+- ✅ 3-step forgot password flow (email → code → reset)
+- ✅ Token-based authentication with auto-refresh
+- ✅ Cookie-based session management
+- ✅ Logout functionality
+- ✅ Protected routes and auth guards
+
+## 🎨 Theming System
+
+Dynamic theme switching using CSS variables:
+
 ```css
+/* Dark Theme (default) */
 :root {
-  --color-primary: #000000;        /* Pure black */
-  --color-secondary: #111111;      /* Very dark gray */
-  --color-accent: #ffffff;         /* Pure white */
-  --color-background: #0a0a0a;     /* Deep black background */
-  --color-surface: #1a1a1a;       /* Dark surface */
-  --color-text: #ffffff;          /* White text */
-  --color-text-secondary: #a3a3a3; /* Gray text */
-  --color-border: #333333;        /* Dark border */
-  --color-input-bg: #1f1f1f;      /* Input background */
-  --color-button-hover: #333333;   /* Button hover state */
+  --primary: #000000;
+  --surface: #1a1a1a;
+  --accent: #ffffff;
+  --text: #ffffff;
+  --background: #0a0a0a;
+  /* ... more variables */
 }
 ```
 
-### Light Theme Variables
-```css
-.light-theme {
-  --color-primary: #ffffff;
-  --color-secondary: #f8f9fa;
-  --color-accent: #000000;
-  --color-background: #ffffff;
-  --color-surface: #f8f9fa;
-  --color-text: #000000;
-  --color-text-secondary: #6c757d;
-  --color-border: #dee2e6;
-  --color-input-bg: #ffffff;
-  --color-button-hover: #e9ecef;
-}
+Theme toggle persists preference and applies immediately across the app.
+
+## 📡 API Integration
+
+### Endpoints
+- `POST /auth/user/signup` - User registration
+- `POST /auth/user/login` - User authentication  
+- `POST /auth/user/logout` - User logout
+- `GET /auth/user/status` - Check auth status
+- `GET /auth/user/getnewaccesstoken` - Refresh access token
+- `POST /auth/user/generateemailcode` - Send email verification
+- `POST /auth/user/generatecode` - Send password reset code
+- `POST /auth/user/verifycode` - Verify reset code
+- `POST /auth/user/resetpassword` - Reset password
+
+### Features
+- Automatic token refresh with axios interceptors
+- Cookie-based authentication
+- Error handling with user-friendly toasts
+- Request retry logic for failed auth
+
+## 🚀 Available Scripts
+
+```bash
+npm run dev      # Start development server
+npm run build    # Build for production  
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
 ```
 
-## Form Fields
+## 🔧 Development Notes
 
-### Signup Form
-- **Name** - Full name of the user
-- **Roll Number** - Unique student identifier
-- **Email** - User's email address
-- **Phone Number** - Contact number
-- **Department** - Academic department selection
-- **Year of Study** - Current academic year (1-4)
-- **Password** - User password
-- **Confirm Password** - Password confirmation
+### Key Implementation Details
+- **No infinite loops**: Auth status check excluded from token refresh
+- **Proper loading states**: Each form has independent loading state
+- **Security**: Generic error messages to prevent user enumeration
+- **UX**: Toast notifications match app theme
+- **Responsive**: Mobile-first design with consistent spacing
 
-### Login Form
-- **Roll Number** - User identifier
-- **Password** - User password
+### Environment Variables
+```bash
+VITE_BACKEND_URL=http://localhost:3000  # Backend API URL
+```
 
-## Responsive Design
+### TypeScript Interfaces
+All API requests/responses are fully typed with comprehensive interfaces for type safety.
 
-The application is built with a mobile-first approach:
+## 🎯 Production Ready Features
 
-- **Mobile (< 640px)**: Single column layout, optimized touch targets
-- **Tablet (640px+)**: Two-column layout for form fields where appropriate
-- **Desktop (1024px+)**: Full desktop experience with hover states
+- ✅ Full authentication flow
+- ✅ Responsive design
+- ✅ Error handling
+- ✅ Loading states
+- ✅ Route protection
+- ✅ Theme persistence
+- ✅ Toast notifications
+- ✅ Form validation
+- ✅ TypeScript coverage
 
-## Technologies Used
+---
 
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **React Router DOM** - Client-side routing
-
-## Development Notes
-
-- The theme toggle is positioned fixed in the top-right corner
-- Form validation provides real-time feedback
-- All components are fully typed with TypeScript
-- The application uses semantic HTML for accessibility
-- CSS variables allow for easy theme customization
-
-## Next Steps
-
-To complete the application, you might want to add:
-
-1. **Backend Integration** - Connect to a real API
-2. **Password Reset** - Implement forgot password functionality
-3. **Email Verification** - Add email verification flow
-4. **Dashboard** - Create a user dashboard after login
-5. **Profile Management** - Allow users to update their profiles
-6. **Admin Panel** - Add administrative functionality
-
-## License
-
-This project is for educational purposes.
+**For Developers**: This codebase follows React best practices with proper state management, route protection, and type safety. All authentication flows are production-ready with comprehensive error handling.
