@@ -4,6 +4,8 @@ import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
+import EventDetailsPage from './pages/EventDetailsPage';
+import InboxPage from './pages/InboxPage';
 import ThemeToggle from './components/ThemeToggle';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthGuard from './components/AuthGuard';
@@ -16,7 +18,10 @@ function App() {
         <div className="app">
           <ThemeToggle />
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
+            
+            {/* Auth Routes - Only accessible when not logged in */}
             <Route 
               path="/signup" 
               element={
@@ -41,6 +46,8 @@ function App() {
                 </AuthGuard>
               } 
             />
+            
+            {/* Protected Routes - Only accessible when logged in */}
             <Route 
               path="/dashboard" 
               element={
@@ -49,7 +56,25 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            {/* Add more routes as needed */}
+            <Route 
+              path="/events/:eventId" 
+              element={
+                <ProtectedRoute>
+                  <EventDetailsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/inbox" 
+              element={
+                <ProtectedRoute>
+                  <InboxPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Catch-all route - redirect to home or 404 page */}
+            <Route path="*" element={<HomePage />} />
           </Routes>
         </div>
       </Router>

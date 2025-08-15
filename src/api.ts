@@ -1,5 +1,32 @@
 import axios from 'axios';
-import type { User, LoginCredentials, SignupFormData } from './types/user';
+import type {
+  User,
+  LoginCredentials,
+  SignupFormData,
+  EventRegistration,
+  EventRegistrationResponse,
+  TeamInvite,
+  TeamInvitationResponse,
+  AcceptTeamInviteRequest,
+  AcceptTeamInviteResponse,
+  RejectTeamInviteRequest,
+  RejectTeamInviteResponse,
+  FetchMembershipDetailsResponse,
+  FetchInvitationsResponse,
+  FetchProfileResponse,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
+  GetRegisteredEventsResponse,
+  Feedback,
+  FeedbackResponse,
+  GetUserIdByRollNoRequest,
+  GetUserIdByRollNoResponse,
+  FetchTeamMembersRequest,
+  FetchTeamMembersResponse,
+  RemoveTeamMemberRequest,
+  RemoveTeamMemberResponse,
+  EventListResponse
+} from './types/user';
 
 // Extend AxiosRequestConfig to include a private _retry flag
 declare module 'axios' {
@@ -119,5 +146,103 @@ export const checkAuthStatus = async (): Promise<boolean> => {
     return false;
   }
 };
+// src/api.ts
 
+const API_BASE = '/user';
+
+// 1. Register for Event
+export async function registerForEvent(data: EventRegistration): Promise<EventRegistrationResponse> {
+  const response = await api.post(`${API_BASE}/register`, data);
+  return response.data;
+}
+
+// 2. Send Team Invitation
+export async function sendTeamInvitation(data: TeamInvite): Promise<TeamInvitationResponse> {
+  const response = await api.post(`${API_BASE}/sendTeamInvitaion`, data);
+  return response.data;
+}
+
+// 3. Accept Team Invite
+export async function acceptTeamInvite(data: AcceptTeamInviteRequest): Promise<AcceptTeamInviteResponse> {
+  const response = await api.post(`${API_BASE}/acceptTeamInvite`, data);
+  return response.data;
+}
+
+// 4. Reject Team Invite
+export async function rejectTeamInvite(data: RejectTeamInviteRequest): Promise<RejectTeamInviteResponse> {
+  const response = await api.post(`${API_BASE}/rejectTeamInvite`, data);
+  return response.data;
+}
+
+// 5. Fetch Membership Details
+export async function fetchMembershipDetails(): Promise<FetchMembershipDetailsResponse> {
+  const response = await api.get(`${API_BASE}/membershipDetails`);
+  return response.data;
+}
+
+// 6. Fetch Invitations
+export async function fetchInvitations(): Promise<FetchInvitationsResponse> {
+  const response = await api.get(`${API_BASE}/fetch/invitations`);
+  return response.data;
+}
+
+// 7. Fetch Profile
+export async function fetchProfile(): Promise<FetchProfileResponse> {
+  const response = await api.get(`${API_BASE}/fetch/profile`);
+  return response.data;
+}
+
+// 8. Update Profile
+export async function updateProfile(data: UpdateProfileRequest): Promise<UpdateProfileResponse> {
+  const response = await api.post(`${API_BASE}/update/profile`, data);
+  return response.data;
+}
+
+// 9. Get Registered Events
+export async function getRegisteredEvents(): Promise<GetRegisteredEventsResponse> {
+  const response = await api.get(`${API_BASE}/registeredevents`);
+  return response.data;
+}
+
+// 10. Submit Feedback
+export async function submitFeedback(data: Feedback): Promise<FeedbackResponse> {
+  const response = await api.post(`${API_BASE}/feedback`, data);
+  return response.data;
+}
+
+// 11. Get User ID by Roll Number
+export async function getUserIdByRollNo(data: GetUserIdByRollNoRequest): Promise<GetUserIdByRollNoResponse> {
+  const response = await api.post(`${API_BASE}/getUserIdByRollNo`, data);
+  return response.data;
+}
+
+// 12. Fetch Team Members of Event
+export async function fetchTeamMembersOfEvent(data: FetchTeamMembersRequest): Promise<FetchTeamMembersResponse> {
+  const response = await api.post(`${API_BASE}/fetchTeamMembersOfEvent`, data);
+  return response.data;
+}
+
+// 13. Remove Team Member
+export async function removeTeamMember(data: RemoveTeamMemberRequest): Promise<RemoveTeamMemberResponse> {
+  const response = await api.post(`${API_BASE}/removeTeamMember`, data);
+  return response.data;
+}
+
+// 14. Get Past Events
+export async function getPastEvents(): Promise<EventListResponse> {
+  const response = await api.get(`${API_BASE}/events/past`);
+  return response.data;
+}
+
+// 15. Get Ongoing Events
+export async function getOngoingEvents(): Promise<EventListResponse> {
+  const response = await api.get(`${API_BASE}/events/ongoing`);
+  return response.data;
+}
+
+// 16. Get Upcoming Events
+export async function getUpcomingEvents(): Promise<EventListResponse> {
+  const response = await api.get(`${API_BASE}/events/upcoming`);
+  return response.data;
+}
 export default api;
