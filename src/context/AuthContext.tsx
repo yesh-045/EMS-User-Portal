@@ -10,7 +10,7 @@ import {
   refreshAccessToken
 } from '../api';
 import { showToast } from '../utils/toast';
-import type { User, LoginCredentials, SignupFormData} from '../types/user';
+import type { User, LoginCredentials, SignupFormData, UserProfile} from '../types/user';
 
 interface AuthContextType {
   user: User | null;
@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const setUserAndRollNo = (userData: User | null) => {
+  const setUserAndRollNo = (userData: UserProfile | null) => {
     setUser(userData);
     setUserRollNo(userData?.rollno || null);
   };
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await apiSignup({ ...signupData, code });
-      setUserAndRollNo(response.user);
+      setUserAndRollNo(response);
       setIsAuthenticated(true);
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || error.message || 'Signup failed';
@@ -116,7 +116,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await apiSignin(credentials);
-      setUserAndRollNo(response.user);
+      setUserAndRollNo(response);
       setIsAuthenticated(true);
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Sign in failed';

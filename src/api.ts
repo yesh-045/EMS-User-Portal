@@ -1,6 +1,5 @@
 import axios from 'axios';
 import type {
-  User,
   LoginCredentials,
   SignupFormData,
   EventRegistration,
@@ -96,13 +95,13 @@ export const generateEmailCode = async (rollno: string): Promise<{ message: stri
   return response.data;
 };
 
-export const signup = async (signupData: SignupFormData & { code: string }): Promise<{ user: User; message: string }> => {
+export const signup = async (signupData: SignupFormData & { code: string }): Promise<UserProfile> => {
   const { confirmPassword, ...dataToSend } = signupData;
   const response = await api.post('/auth/user/signup', dataToSend);
   return response.data;
 };
 
-export const signin = async (credentials: LoginCredentials): Promise<{ user: User; message: string }> => {
+export const signin = async (credentials: LoginCredentials): Promise<UserProfile> => {
   const response = await api.post('/auth/user/login', credentials);
   return response.data;
 };

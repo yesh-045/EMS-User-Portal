@@ -14,6 +14,8 @@ import {
 } from '../api';
 import type { EventListItem, RegisteredEvent, TeamMember } from '../types/user';
 import { showToast } from '../utils/toast';
+import { AiOutlineArrowLeft, AiOutlineCalendar, AiOutlineEnvironment, AiOutlineTag, AiOutlineTeam, AiOutlineCheckCircle } from 'react-icons/ai';
+
 const EventDetailsPage: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
@@ -30,27 +32,25 @@ const EventDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
 
-  
   useEffect(() => {
-  const fetchRollNo = async () => {
-    try {
-      const response = await fetchProfile();
-      setCurrentUserRollNo(response.profile.rollno); // Access through response.profile
-    } catch (error) {
-      console.error("Failed to fetch roll number:", error);
-      setCurrentUserRollNo(null);
-    }
-  };
+    const fetchRollNo = async () => {
+      try {
+        const response = await fetchProfile();
+        setCurrentUserRollNo(response.profile.rollno);
+      } catch (error) {
+        console.error("Failed to fetch roll number:", error);
+        setCurrentUserRollNo(null);
+      }
+    };
+    fetchRollNo();
+  }, []);
 
-  fetchRollNo();
-}, []);
   useEffect(() => {
+    if (!eventId) return;
+    
     const fetchData = async () => {
-      if (!eventId) return;
-      
       setLoading(true);
       try {
-        // Fetch all events to find the specific event
         const [ongoingRes, upcomingRes, registeredRes] = await Promise.all([
           getOngoingEvents(),
           getUpcomingEvents(),
@@ -64,7 +64,6 @@ const EventDetailsPage: React.FC = () => {
           setEvent(currentEvent);
         }
 
-        // Check if user is registered for this event
         const userRegistration = registeredRes.data.find(
           reg => reg.event.id === parseInt(eventId)
         );
@@ -72,7 +71,6 @@ const EventDetailsPage: React.FC = () => {
         if (userRegistration) {
           setRegistered(userRegistration);
           
-          // Fetch team members if registered
           try {
             const teamRes = await fetchTeamMembersOfEvent({ event_id: parseInt(eventId) });
             setTeamMembers(teamRes.members);
@@ -109,7 +107,6 @@ const EventDetailsPage: React.FC = () => {
         teamName: teamName || undefined
       });
 
-      // Refresh the page data
       window.location.reload();
     } catch (error) {
       console.error('Registration error:', error);
@@ -165,32 +162,30 @@ const EventDetailsPage: React.FC = () => {
   };
 
   const handleRemoveMember = async (memberId: number) => {
-  if (!currentUserRollNo) {
-    showToast.error("Unable to verify your identity");
-    return;
-  }
+    if (!currentUserRollNo) {
+      showToast.error("Unable to verify your identity");
+      return;
+    }
 
-  const memberToRemove = teamMembers.find(member => member.id === memberId);
-  if (!memberToRemove) return;
+    const memberToRemove = teamMembers.find(member => member.id === memberId);
+    if (!memberToRemove) return;
 
-  // Compare by roll number
-  if (memberToRemove.rollno === currentUserRollNo) {
-    showToast.error("You cannot remove yourself");
-    return;
-  }
+    if (memberToRemove.rollno === currentUserRollNo) {
+      showToast.error("You cannot remove yourself");
+      return;
+    }
 
-  // Rest of your existing removal logic...
-  try {
-    await removeTeamMember({
-      event_id: parseInt(eventId!),
-      user_id: memberId
-    });
-    setTeamMembers(prev => prev.filter(m => m.id !== memberId));
-    showToast.success("Member removed successfully");
-  } catch (error) {
-    showToast.error("Failed to remove member");
-  }
-};
+    try {
+      await removeTeamMember({
+        event_id: parseInt(eventId!),
+        user_id: memberId
+      });
+      setTeamMembers(prev => prev.filter(m => m.id !== memberId));
+      showToast.success("Member removed successfully");
+    } catch (error) {
+      showToast.error("Failed to remove member");
+    }
+  };
 
   const closeInvitePopup = () => {
     setShowInvite(false);
@@ -205,234 +200,320 @@ const EventDetailsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto p-6 bg-surface rounded-xl shadow-xl mt-8">
-        <p className="text-text-secondary">Loading event details...</p>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="bg-surface rounded-xl shadow-xl p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-6 bg-secondary rounded w-3/4"></div>
+              <div className="h-64 bg-secondary rounded"></div>
+              <div className="h-4 bg-secondary rounded w-1/2"></div>
+              <div className="h-4 bg-secondary rounded w-2/3"></div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!event) {
     return (
-      <div className="max-w-3xl mx-auto p-6 bg-surface rounded-xl shadow-xl mt-8">
-        <p className="text-text-secondary">Event not found.</p>
-        <Button variant="outline" onClick={() => navigate('/dashboard')} className="mt-4">
-          Back to Dashboard
-        </Button>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="bg-surface rounded-xl shadow-xl p-6 text-center">
+            <p className="text-text-secondary mb-4">Event not found.</p>
+            <Button variant="outline" onClick={() => navigate('/dashboard')}>
+              Back to Dashboard
+            </Button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-surface rounded-xl shadow-xl mt-8">
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="lg:w-1/2">
-          <img
-            src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
-            alt={event.name}
-            className="w-full h-80 object-cover rounded-lg border border-border"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = '/default-event-poster.jpg';
-            }}
-          />
-        </div>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
-        <div className="lg:w-1/2 space-y-4">
-          <h1 className="text-3xl font-bold text-text">{event.name}</h1>
-          
-          <div className="space-y-2 text-text-secondary">
-            <p className="text-text leading-relaxed">{event.about}</p>
+        {/* Header with Back Button */}
+        <div className="flex items-center gap-4 mb-6">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 text-text-secondary hover:text-text transition-colors duration-200"
+          >
+            <AiOutlineArrowLeft className="w-5 h-5" />
+            <span>Back to Dashboard</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Event Info */}
+          <div className="lg:col-span-2 space-y-6">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <p className="font-semibold text-text">Date:</p>
-                <p>{event.date ? new Date(event.date).toLocaleDateString() : 'TBA'}</p>
-              </div>
-              
-              <div>
-                <p className="font-semibold text-text">Venue:</p>
-                <p>{event.venue}</p>
-              </div>
-              
-              <div>
-                <p className="font-semibold text-text">Type:</p>
-                <p>{event.event_type} - {event.event_category}</p>
-              </div>
-              
-              <div>
-                <p className="font-semibold text-text">Team Size:</p>
-                <p>{event.min_no_member} - {event.max_no_member} members</p>
-              </div>
-              
-              {event.club_name && (
-                <div>
-                  <p className="font-semibold text-text">Organized by:</p>
-                  <p>{event.club_name}</p>
+            {/* Event Poster */}
+            <div className="relative rounded-2xl overflow-hidden bg-secondary border border-border">
+              <img
+                src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
+                alt={event.name}
+                className="w-full aspect-[16/9] sm:aspect-[4/3] lg:aspect-[16/10] object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/default-event-poster.jpg';
+                }}
+              />
+              {'status' in event && (
+                <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium shadow-lg ${
+                  event.status === 'ongoing' ? 'bg-accent text-primary' :
+                  event.status === 'upcoming' ? 'bg-accent/80 text-primary' : 'bg-text-secondary text-background'
+                }`}>
+                  {event.status}
                 </div>
               )}
+            </div>
+
+            {/* Event Details */}
+            <div className="bg-surface rounded-2xl p-6 border border-border">
+              <h1 className="text-3xl font-bold text-text mb-4">{event.name}</h1>
               
-              <div>
-                <p className="font-semibold text-text">Status:</p>
-                <span className={`px-2 py-1 rounded-full text-xs ${
-                  event.status === 'ongoing' ? 'bg-green-500 text-white' :
-                  event.status === 'upcoming' ? 'bg-blue-500 text-white' : 
-                  'bg-gray-500 text-white'
-                }`}>
-                  {event.status.toUpperCase()}
-                </span>
+              <p className="text-text-secondary leading-relaxed mb-6">{event.about}</p>
+              
+              {/* Event Info Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                    <AiOutlineCalendar className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-text-secondary">Date</p>
+                    <p className="font-medium text-text">
+                      {event.date ? new Date(event.date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      }) : 'To be announced'}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                    <AiOutlineEnvironment className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-text-secondary">Venue</p>
+                    <p className="font-medium text-text">{event.venue}</p>
+                  </div>
+                </div>
+                
+                {'event_type' in event && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <AiOutlineTag className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-text-secondary">Type</p>
+                      <p className="font-medium text-text">{event.event_type} • {event.event_category}</p>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                    <AiOutlineTeam className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-text-secondary">Team Size</p>
+                    <p className="font-medium text-text">
+                      {event.min_no_member === event.max_no_member 
+                        ? `${event.min_no_member} ${event.min_no_member === 1 ? 'member' : 'members'}`
+                        : `${event.min_no_member} - ${event.max_no_member} members`
+                      }
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="mt-8 flex flex-wrap gap-4">
-        {!registered ? (
-          <Button 
-            onClick={handleRegister} 
-            disabled={registering || event.status === 'past'}
-            className="px-6 py-3"
-          >
-            {registering ? 'Registering...' : 'Register for Event'}
-          </Button>
-        ) : (
-          <div className="flex flex-wrap gap-4">
-            {teamMembers.length < event.max_no_member && event.status !== 'past' && (
-              <Button onClick={() => setShowInvite(true)} className="px-6 py-3">
-                Invite Team Member
-              </Button>
+          {/* Right Column - Actions */}
+          <div className="space-y-6">
+            {/* Registration Status */}
+            {registered ? (
+              <div className="bg-accent/5 border border-accent/20 rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
+                    <AiOutlineCheckCircle className="w-6 h-6 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-text">Successfully Registered!</h3>
+                    <p className="text-sm text-text-secondary">You're all set for this event</p>
+                  </div>
+                </div>
+                
+                {registered.team_name && (
+                  <div className="bg-surface rounded-lg p-3 border border-border">
+                    <p className="text-sm text-text-secondary">Team Name</p>
+                    <p className="font-medium text-text">{registered.team_name}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-surface border border-border rounded-2xl p-6">
+                <h3 className="font-semibold text-text mb-4">Join This Event</h3>
+                <p className="text-text-secondary text-sm mb-6">
+                  Ready to participate? Register now to secure your spot.
+                </p>
+                <Button
+                  onClick={handleRegister}
+                  loading={registering}
+                  className="w-full"
+                  size="lg"
+                >
+                  {registering ? 'Registering...' : 'Register Now'}
+                </Button>
+              </div>
             )}
-            
-            {event.min_no_member > 1 && (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowTeam(true)}
-                className="px-6 py-3"
-              >
-                View Team Members ({teamMembers.length})
-              </Button>
+
+            {/* Team Management */}
+            {registered && event.max_no_member > 1 && (
+              <div className="bg-surface border border-border rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-text">Team Management</h3>
+                  <span className="text-sm text-text-secondary">
+                    {teamMembers.length}/{event.max_no_member} members
+                  </span>
+                </div>
+                
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowTeam(!showTeam)}
+                    className="w-full"
+                  >
+                    {showTeam ? 'Hide Team' : 'View Team'}
+                  </Button>
+                  
+                  {teamMembers.length < event.max_no_member && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowInvite(!showInvite)}
+                      className="w-full"
+                    >
+                      Invite Members
+                    </Button>
+                  )}
+                </div>
+              </div>
             )}
-            
-            <div className="px-4 py-2 bg-green-500/10 text-green-500 rounded-lg border border-green-500/20">
-              Registered {registered.team_name ? `as team: ${registered.team_name}` : ''}
+          </div>
+        </div>
+
+        {/* Modals */}
+        {/* Invite Popup */}
+        {showInvite && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-surface p-6 rounded-2xl shadow-xl w-full max-w-md border border-border">
+              <h2 className="text-xl font-bold mb-4 text-text">Invite Team Member</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                    Roll Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter roll number"
+                    className="w-full p-3 rounded-lg border border-border bg-input-bg text-text focus:outline-none focus:ring-2 focus:ring-accent"
+                    value={inviteRoll}
+                    onChange={(e) => setInviteRoll(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && !foundUserId && handleSearchUser()}
+                  />
+                </div>
+                
+                <div className="flex gap-2">
+                  {!foundUserId ? (
+                    <Button 
+                      onClick={handleSearchUser} 
+                      disabled={!inviteRoll.trim() || searchingUser}
+                      className="flex-1"
+                    >
+                      {searchingUser ? 'Searching...' : 'Search User'}
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={handleSendInvite}
+                      className="flex-1"
+                    >
+                      Send Invitation
+                    </Button>
+                  )}
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={closeInvitePopup}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+                
+                {inviteStatus && (
+                  <p className={`text-sm p-2 rounded ${
+                    inviteStatus.includes('successfully') || inviteStatus.includes('found') 
+                      ? 'text-accent bg-accent/10' 
+                      : 'text-text-secondary bg-secondary/50'
+                  }`}>
+                    {inviteStatus}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         )}
-        
-        <Button 
-          variant="outline" 
-          onClick={() => navigate('/dashboard')}
-          className="px-6 py-3"
-        >
-          Back to Dashboard
-        </Button>
-      </div>
 
-      {/* Invite Popup */}
-      {showInvite && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface p-6 rounded-lg shadow-lg w-full max-w-md border border-border">
-            <h2 className="text-xl font-bold mb-4 text-text">Invite Team Member</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">
-                  Roll Number
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter roll number"
-                  className="w-full p-3 rounded-lg border border-border bg-input-bg text-text focus:outline-none focus:ring-2 focus:ring-accent"
-                  value={inviteRoll}
-                  onChange={(e) => setInviteRoll(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && !foundUserId && handleSearchUser()}
-                />
-              </div>
+        {/* Team Members Popup */}
+        {showTeam && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-surface p-6 rounded-2xl shadow-xl w-full max-w-2xl border border-border max-h-[80vh] overflow-y-auto">
+              <h2 className="text-xl font-bold mb-4 text-text">
+                Team Members ({teamMembers.length}/{event.max_no_member})
+              </h2>
               
-              <div className="flex gap-2">
-                {!foundUserId ? (
-                  <Button 
-                    onClick={handleSearchUser} 
-                    disabled={!inviteRoll.trim() || searchingUser}
-                    className="flex-1"
-                  >
-                    {searchingUser ? 'Searching...' : 'Search User'}
-                  </Button>
-                ) : (
-                  <Button 
-                    onClick={handleSendInvite}
-                    className="flex-1"
-                  >
-                    Send Invitation
-                  </Button>
-                )}
-                
-                <Button 
-                  variant="outline" 
-                  onClick={closeInvitePopup}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
-              
-              {inviteStatus && (
-                <p className={`text-sm p-2 rounded ${
-                  inviteStatus.includes('successfully') || inviteStatus.includes('found') 
-                    ? 'text-green-500 bg-green-500/10' 
-                    : 'text-red-500 bg-red-500/10'
-                }`}>
-                  {inviteStatus}
-                </p>
+              {teamMembers.length > 0 ? (
+                <div className="space-y-3 mb-6">
+                  {teamMembers.map((member) => (
+                    <div key={member.id} className="flex items-center justify-between p-4 bg-background border border-border rounded-xl">
+                      <div className="flex-1">
+                        <div className="font-medium text-text">{member.name}</div>
+                        <div className="text-sm text-text-secondary">
+                          {member.rollno} • {member.department} • Year {member.yearofstudy}
+                        </div>
+                        <div className="text-sm text-text-secondary">{member.email}</div>
+                      </div>
+                      
+                      {currentUserRollNo && member.rollno !== currentUserRollNo && event.status !== 'past' && (
+                        <Button 
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRemoveMember(member.id)}
+                          className="text-text-secondary hover:text-text hover:border-accent"
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-text-secondary mb-6 text-center py-8">No team members found.</p>
               )}
+              
+              <Button variant="outline" onClick={closeTeamPopup} className="w-full">
+                Close
+              </Button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Team Members Popup */}
-      {showTeam && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-surface p-6 rounded-lg shadow-lg w-full max-w-2xl border border-border max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4 text-text">
-              Team Members ({teamMembers.length}/{event.max_no_member})
-            </h2>
-            
-            {teamMembers.length > 0 ? (
-              <div className="space-y-3 mb-6">
-                {teamMembers.map((member) => (
-                  <div key={member.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-medium text-text">{member.name}</div>
-                      <div className="text-sm text-text-secondary">
-                        {member.rollno} | {member.department} | Year {member.yearofstudy}
-                      </div>
-                      <div className="text-sm text-text-secondary">{member.email}</div>
-                    </div>
-                    
-                    {currentUserRollNo && member.rollno !== currentUserRollNo && event.status !== 'past' && (
-  <Button 
-    size="sm"
-    variant="outline"
-    onClick={() => handleRemoveMember(member.id)}
-    className="text-red-500 hover:text-red-600 hover:border-red-500"
-  >
-    Remove
-  </Button>
-)}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-text-secondary mb-6">No team members found.</p>
-            )}
-            
-            <Button variant="outline" onClick={closeTeamPopup} className="w-full">
-              Close
-            </Button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
