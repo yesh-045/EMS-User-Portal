@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { AiOutlineHome, AiOutlineMail, AiOutlineLogout, AiOutlineUser } from 'react-icons/ai';
+import { AiOutlineHome, AiOutlineMail, AiOutlineLogout, AiOutlineUser, AiOutlineCalendar } from 'react-icons/ai';
 import { BsSun, BsMoon } from 'react-icons/bs';
 import { fetchInvitations } from '../api';
 
@@ -219,6 +219,19 @@ const Navbar: React.FC = () => {
                       )}
                     </div>
                     <span className="hidden sm:inline">Inbox</span>
+                  </button>
+
+                  <button
+                    onClick={() => navigate('/timeline')}
+                    className={`px-2 py-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-2 ${
+                      location.pathname === '/timeline' 
+                        ? 'bg-accent text-primary' 
+                        : 'text-text-secondary hover:text-text hover:bg-button-hover'
+                    }`}
+                    title="Timeline"
+                  >
+                    <AiOutlineCalendar className="w-5 h-5" />
+                    <span className="hidden sm:inline">Timeline</span>
                   </button>
                 </div>
 

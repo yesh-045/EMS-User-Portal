@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import EventDetailsPage from './pages/EventDetailsPage';
 import InboxPage from './pages/InboxPage';
 import ProfilePage from './pages/ProfilePage';
+import TimelinePage from './pages/TimelinePage'; // Add this import
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthGuard from './components/AuthGuard';
@@ -77,6 +78,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ProfilePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/timeline" 
+              element={
+                <ProtectedRoute>
+                  <TimelinePage />
                 </ProtectedRoute>
               } 
             />
