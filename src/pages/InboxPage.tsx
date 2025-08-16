@@ -14,8 +14,10 @@ import {
   AiOutlineEnvironment,
   AiOutlineBell
 } from 'react-icons/ai';
+import { useAuth } from '../context/AuthContext';
 
 const InboxPage: React.FC = () => {
+  const {user} = useAuth();
   const navigate = useNavigate();
   const [ongoingEvents, setOngoingEvents] = useState<EventListItem[]>([]);
   const [invitations, setInvitations] = useState<InviteWithDetails[]>([]);
@@ -66,9 +68,13 @@ const InboxPage: React.FC = () => {
   const handleRejectInvite = async (invite: InviteWithDetails) => {
     setProcessingInvite(invite.from_team_id);
     try {
+      let user_id: number = 0;
+      if (user?.id){
+        user_id = user.id;
+      }
       await rejectTeamInvite({
         from_team_id: invite.from_team_id,
-        to_user_id: 0, // This will be handled by backend based on auth
+        to_user_id: user_id, // This will be handled by backend based on auth
         event_id: invite.event_id
       });
 

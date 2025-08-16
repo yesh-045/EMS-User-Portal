@@ -1,5 +1,6 @@
 // User related interfaces
 export interface UserProfile {
+  id: number;
   name: string;
   rollno: string;
   department: string;
@@ -9,7 +10,7 @@ export interface UserProfile {
 }
 
 export interface User extends UserProfile {
-  id?: number;
+  id: number;
   rollno: string;
   password?: string;
 }
