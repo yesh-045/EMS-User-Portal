@@ -50,20 +50,13 @@ const RegisteredEvents: React.FC = () => {
   return (
     <section className="mb-8">
       <h2 className="text-2xl font-bold mb-4 text-text">Registered Events</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {registeredEvents.map((event) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        {registeredEvents.map((registration) => (
           <EventCard
-            key={`${event.team_id}-${event.event.id}`}
-            id={event.event.id}
-            name={event.event.name}
-            about={event.event.about}
-            date={event.event.date}
-            venue={event.event.venue}
-            event_type={event.event.event_type}
-            event_category={event.event.event_category}
-            team_name={event.team_name}
+            key={`${registration.team_id}-${registration.event.id}`}
+            event={registration.event}
             isRegistered={true}
-            club_name={null} // Add club name if available in your data
+            teamName={registration.team_name}
           />
         ))}
       </div>

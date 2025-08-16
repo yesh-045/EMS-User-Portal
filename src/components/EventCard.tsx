@@ -2,6 +2,7 @@
 import React from 'react';
 import type { EventListItem, RegisteredEventData } from '../types/user';
 import { useNavigate } from 'react-router-dom';
+import { AiOutlineCalendar, AiOutlineEnvironment, AiOutlineTag, AiOutlineTeam, AiOutlineBank } from 'react-icons/ai';
 
 interface EventCardProps {
   event: EventListItem | RegisteredEventData;
@@ -16,43 +17,68 @@ const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) 
   };
   return (
     <div
-      className="bg-surface rounded-lg shadow-lg overflow-hidden border border-border hover:border-accent transition-all duration-200 cursor-pointer"
+      className="bg-surface rounded-xl shadow-md overflow-hidden border border-border hover:border-accent hover:shadow-lg transition-all duration-200 cursor-pointer group w-full"
       onClick={handleClick}
     >
-      <div className="aspect-video w-full bg-secondary relative">
+      <div className="aspect-[4/3] w-full bg-secondary relative overflow-hidden">
         <img
           src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
           alt={event.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
           onError={e => {
             (e.target as HTMLImageElement).src = '/default-event-poster.jpg';
           }}
         />
         {'status' in event && (
-          <div className={`absolute top-2 right-2 px-3 py-1 rounded-full text-sm font-medium ${
-            event.status === 'ongoing' ? 'bg-green-500' :
-            event.status === 'upcoming' ? 'bg-blue-500' : 'bg-gray-500'
-          } text-white`}>
+          <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium shadow-lg border ${
+            event.status === 'ongoing' ? 'bg-green-500 text-white border-green-400' :
+            event.status === 'upcoming' ? 'bg-blue-500 text-white border-blue-400' : 'bg-gray-600 text-white border-gray-500'
+          }`}>
             {event.status}
           </div>
         )}
+        {isRegistered && (
+          <div className="absolute top-3 left-3 bg-emerald-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg border border-emerald-400">
+            ✓ Registered
+          </div>
+        )}
       </div>
-      <div className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-semibold text-text truncate">{event.name}</h3>
-          {isRegistered && (
-            <span className="bg-accent/10 text-accent px-2 py-1 rounded-full text-xs">Registered</span>
-          )}
+      <div className="p-4 space-y-3">
+        <div>
+          <h3 className="text-lg font-semibold text-text line-clamp-1 group-hover:text-accent transition-colors duration-200">
+            {event.name}
+          </h3>
+          <p className="text-text-secondary text-sm mt-1 line-clamp-2 leading-relaxed">
+            {event.about}
+          </p>
         </div>
-        <p className="text-text-secondary text-sm mb-2 line-clamp-2">{event.about}</p>
-        <div className="space-y-1 text-sm text-text-secondary">
-          <p><span className="font-medium">Date:</span> {event.date ? new Date(event.date).toLocaleDateString() : 'TBA'}</p>
-          <p><span className="font-medium">Venue:</span> {event.venue}</p>
-          {'event_type' in event && (
-            <p><span className="font-medium">Type:</span> {event.event_type} - {event.event_category}</p>
+        
+        <div className="space-y-2 text-sm">
+          <div className="flex items-center gap-2 text-text-secondary">
+            <AiOutlineCalendar className="w-4 h-4 text-accent flex-shrink-0" />
+            <span>{event.date ? new Date(event.date).toLocaleDateString() : 'Date TBA'}</span>
+          </div>
+          <div className="flex items-center gap-2 text-text-secondary">
+            <AiOutlineEnvironment className="w-4 h-4 text-accent flex-shrink-0" />
+            <span className="line-clamp-1">{event.venue}</span>
+          </div>
+          {('club_name' in event && event.club_name) && (
+            <div className="flex items-center gap-2 text-text-secondary">
+              <AiOutlineBank className="w-4 h-4 text-accent flex-shrink-0" />
+              <span className="line-clamp-1">{event.club_name}</span>
+            </div>
           )}
-          {isRegistered && teamName && (
-            <p><span className="font-medium">Team:</span> {teamName}</p>
+          {'event_type' in event && (
+            <div className="flex items-center gap-2 text-text-secondary">
+              <AiOutlineTag className="w-4 h-4 text-accent flex-shrink-0" />
+              <span>{event.event_type} • {event.event_category}</span>
+            </div>
+          )}
+          {teamName && (
+            <div className="flex items-center gap-2 text-text-secondary">
+              <AiOutlineTeam className="w-4 h-4 text-accent flex-shrink-0" />
+              <span>Team: {teamName}</span>
+            </div>
           )}
         </div>
       </div>

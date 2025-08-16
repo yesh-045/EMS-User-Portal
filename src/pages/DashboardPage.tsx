@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import { getRegisteredEvents, getOngoingEvents, getUpcomingEvents, fetchInvitations } from '../api';
 import type { RegisteredEvent, EventListItem, InviteWithDetails } from '../types/user';
 import EventCard from '../components/EventCard';
+import RegisteredEvents from '../components/RegisteredEvents';
+import { 
+  AiOutlineCheckCircle, 
+  AiOutlineCalendar, 
+  AiOutlineTeam, 
+  AiOutlineSearch,
+  AiOutlineFilter
+} from 'react-icons/ai';
 
 const DashboardPage: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user} = useAuth();
   const [registeredEvents, setRegisteredEvents] = useState<RegisteredEvent[]>([]);
   const [allEvents, setAllEvents] = useState<EventListItem[]>([]);
   const [invitations, setInvitations] = useState<InviteWithDetails[]>([]);
@@ -38,14 +44,6 @@ const DashboardPage: React.FC = () => {
     };
     fetchDashboardData();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
 
   // Filter events based on status and type
   const filteredEvents = allEvents.filter(event => {
@@ -111,9 +109,7 @@ const DashboardPage: React.FC = () => {
                 <p className="text-2xl font-bold text-text">{registeredEvents.length}</p>
               </div>
               <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <AiOutlineCheckCircle className="w-6 h-6 text-blue-500" />
               </div>
             </div>
           </div>
@@ -125,9 +121,7 @@ const DashboardPage: React.FC = () => {
                 <p className="text-2xl font-bold text-text">{allEvents.length}</p>
               </div>
               <div className="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+                <AiOutlineCalendar className="w-6 h-6 text-green-500" />
               </div>
             </div>
           </div>
@@ -139,51 +133,14 @@ const DashboardPage: React.FC = () => {
                 <p className="text-2xl font-bold text-text">{invitations.length}</p>
               </div>
               <div className="w-10 h-10 bg-purple-500/10 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
+                <AiOutlineTeam className="w-6 h-6 text-purple-500" />
               </div>
             </div>
           </div>
         </div>
 
         {/* Registered Events Section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-text">Your Registered Events</h2>
-            {registeredEvents.length > 0 && (
-              <span className="text-sm text-text-secondary">
-                {registeredEvents.length} event{registeredEvents.length !== 1 ? 's' : ''}
-              </span>
-            )}
-          </div>
-          
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
-              <span className="ml-3 text-text-secondary">Loading events...</span>
-            </div>
-          ) : registeredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {registeredEvents.map((registration) => (
-                <EventCard
-                  key={registration.team_id}
-                  event={registration.event}
-                  isRegistered={true}
-                  teamName={registration.team_name}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="bg-surface rounded-lg p-8 text-center border border-border">
-              <svg className="w-16 h-16 mx-auto text-text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-text-secondary text-lg">No registered events yet</p>
-              <p className="text-text-secondary text-sm mt-1">Browse events below to get started</p>
-            </div>
-          )}
-        </section>
+        <RegisteredEvents />
 
         {/* All Events Section with Filters */}
         <section className="space-y-4">
@@ -196,19 +153,9 @@ const DashboardPage: React.FC = () => {
                 onClick={() => setShowFilters(!showFilters)}
               >
                 <span className="mr-2">Filter</span>
-                <svg
+                <AiOutlineFilter
                   className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                  />
-                </svg>
+                />
               </Button>
             </div>
           </div>
@@ -256,7 +203,7 @@ const DashboardPage: React.FC = () => {
               <span className="ml-3 text-text-secondary">Loading events...</span>
             </div>
           ) : filteredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 place-items-center">
               {filteredEvents.map((event) => (
                 <EventCard
                   key={event.id}
@@ -269,9 +216,7 @@ const DashboardPage: React.FC = () => {
             </div>
           ) : (
             <div className="bg-surface rounded-lg p-8 text-center border border-border">
-              <svg className="w-16 h-16 mx-auto text-text-secondary mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <AiOutlineSearch className="w-16 h-16 mx-auto text-text-secondary mb-4" />
               <p className="text-text-secondary text-lg">No events found</p>
               <p className="text-text-secondary text-sm mt-1">
                 Try adjusting your filters or check back later for new events

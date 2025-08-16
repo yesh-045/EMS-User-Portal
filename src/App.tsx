@@ -8,6 +8,7 @@ import EventDetailsPage from './pages/EventDetailsPage';
 import InboxPage from './pages/InboxPage';
 import ProfilePage from './pages/ProfilePage';
 import ThemeToggle from './components/ThemeToggle';
+import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthGuard from './components/AuthGuard';
 import ToastProvider from './components/ToastProvider';
@@ -16,9 +17,10 @@ function App() {
   return (
     <ToastProvider>
       <Router>
-        <div className="app">
-          <ThemeToggle />
-          <Routes>
+        <div className="app min-h-screen bg-background">
+          <Navbar />
+          <main className="flex-1">
+            <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             
@@ -82,7 +84,8 @@ function App() {
             
             {/* Catch-all route - redirect to home or 404 page */}
             <Route path="*" element={<HomePage />} />
-          </Routes>
+            </Routes>
+          </main>
         </div>
       </Router>
     </ToastProvider>
