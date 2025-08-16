@@ -65,39 +65,6 @@ const DashboardPage: React.FC = () => {
               Manage your events and team invitations
             </p>
           </div>
-          
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/profile')}
-              className="flex items-center"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              Profile
-            </Button>
-            
-            <Button
-              variant="outline"
-              onClick={() => navigate('/inbox')}
-              className="relative"
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4m16 0l-2-2m-12 2l2-2" />
-              </svg>
-              Inbox
-              {invitations.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {invitations.length}
-                </span>
-              )}
-            </Button>
-            
-            <Button variant="outline" onClick={handleLogout}>
-              Logout
-            </Button>
-          </div>
         </div>
 
         {/* Quick Stats */}

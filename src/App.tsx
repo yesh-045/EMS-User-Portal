@@ -6,8 +6,6 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import EventDetailsPage from './pages/EventDetailsPage';
 import InboxPage from './pages/InboxPage';
-import ProfilePage from './pages/ProfilePage';
-import ThemeToggle from './components/ThemeToggle';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthGuard from './components/AuthGuard';
@@ -44,7 +42,9 @@ function App() {
             <Route 
               path="/forgot-password" 
               element={
+                <AuthGuard>
                   <ForgotPasswordPage />
+                </AuthGuard>
               } 
             />
             
@@ -70,14 +70,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <InboxPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <ProfilePage />
                 </ProtectedRoute>
               } 
             />
