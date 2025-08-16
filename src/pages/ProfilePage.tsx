@@ -334,18 +334,7 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
 
-        {/* Event Timeline */}
-        {eventsLoading ? (
-          <div className="bg-surface rounded-xl shadow-lg border border-border p-6 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
-            <p className="text-text-secondary">Loading events timeline...</p>
-          </div>
-        ) : (
-          <EventTimeline 
-            registeredEvents={registeredEvents} 
-            allEvents={allEvents}
-          />
-        )}
+        
 
         {/* Security Section */}
         <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
