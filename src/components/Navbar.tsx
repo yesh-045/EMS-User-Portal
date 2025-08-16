@@ -61,13 +61,6 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Don't show navbar on login/signup pages
-  const hideNavbar = ['/login', '/signup', '/forgot-password'].includes(location.pathname);
-  
-  if (hideNavbar) {
-    return null;
-  }
-
   // Show a skeleton/placeholder while authentication is loading
   if (isLoading) {
     return (
