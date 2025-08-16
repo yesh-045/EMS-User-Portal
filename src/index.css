@@ -13,7 +13,8 @@
   --color-text-secondary: #a3a3a3; /* Gray text */
   --color-border: #333333;        /* Dark border */
   --color-input-bg: #1f1f1f;      /* Input background */
-  --color-button-hover: #d9d9d9;   /* Button hover state */
+  --color-button-bg: #1f1f1f;     /* Button background */
+  --color-button-hover: #2a2a2a;  /* Button hover state */
 }
 
 /* Light theme */
@@ -27,7 +28,8 @@
   --color-text-secondary: #6c757d;
   --color-border: #dee2e6;
   --color-input-bg: #ffffff;
-  --color-button-hover: #494949;
+  --color-button-bg: #f8f9fa;
+  --color-button-hover: #e9ecef;
 }
 
 * {
