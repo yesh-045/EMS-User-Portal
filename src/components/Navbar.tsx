@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { AiOutlineHome, AiOutlineMail, AiOutlineLogout } from 'react-icons/ai';
+import { AiOutlineHome, AiOutlineMail, AiOutlineLogout, AiOutlineUser } from 'react-icons/ai';
 import { BsSun, BsMoon } from 'react-icons/bs';
 import { fetchInvitations } from '../api';
 
@@ -187,6 +187,20 @@ const Navbar: React.FC = () => {
                     <AiOutlineHome className="w-5 h-5" />
                     <span className="hidden sm:inline">Dashboard</span>
                   </button>
+                  
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className={`px-2 py-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-2 ${
+                      location.pathname === '/profile' 
+                        ? 'bg-accent text-primary' 
+                        : 'text-text-secondary hover:text-text hover:bg-button-hover'
+                    }`}
+                    title="Profile"
+                  >
+                    <AiOutlineUser className="w-5 h-5" />
+                    <span className="hidden sm:inline">Profile</span>
+                  </button>
+                  
                   <button
                     onClick={handleInboxNavigation}
                     className={`px-2 py-2 sm:px-3 sm:py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-2 relative ${
