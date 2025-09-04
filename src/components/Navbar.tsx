@@ -32,7 +32,7 @@ const Navbar: React.FC = () => {
     fetchInvitationsCount();
     
     // Refresh invitations count every 30 seconds
-    let interval: number | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     if (isAuthenticated && !isLoading) {
       interval = setInterval(fetchInvitationsCount, 30000);
     }
