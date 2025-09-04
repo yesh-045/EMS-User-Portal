@@ -3,7 +3,6 @@ import React from 'react';
 import type { EventListItem, RegisteredEventData } from '../types/user';
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineCalendar, AiOutlineEnvironment, AiOutlineTag, AiOutlineTeam, AiOutlineBank } from 'react-icons/ai';
-
 interface EventCardProps {
   event: EventListItem | RegisteredEventData;
   isRegistered?: boolean;
@@ -12,6 +11,7 @@ interface EventCardProps {
 
 const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) => {
   const navigate = useNavigate();
+  const [imageError, setImageError] = React.useState(false);
   const handleClick = () => {
     navigate(`/events/${event.id}`);
   };
@@ -21,14 +21,21 @@ const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) 
       onClick={handleClick}
     >
       <div className="aspect-[4/3] w-full bg-secondary relative overflow-hidden">
-        <img
-          src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
-          alt={event.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-          onError={e => {
-            (e.target as HTMLImageElement).src = '/default-event-poster.jpg';
-          }}
-        />
+        {!imageError ? (
+          <img
+            src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
+            alt={event.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+            onError={e => {
+              setImageError(true);
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-secondary text-text-secondary text-sm">
+            <img src={"/adhish_happy.png"} alt="Poster not available" className="h-24 w-24 object-contain opacity-70" />
+            <span className="ml-2">Poster not available</span>
+          </div>
+        )}
         {'status' in event && (
           <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium shadow-lg border ${
             event.status === 'ongoing' ? 'bg-green-500 text-white border-green-400' :
