@@ -6,6 +6,19 @@ import Input from '../components/Input';
 import EventTimeline from '../components/EventTimeline';
 import { showToast } from '../utils/toast';
 import type { UserProfile, UpdateProfileRequest, RegisteredEvent, EventListItem } from '../types/user';
+import {
+  AiOutlineUser,
+  AiOutlineEdit,
+  AiOutlineCheck,
+  AiOutlineClose,
+  AiOutlineMail,
+  AiOutlinePhone,
+  AiOutlineIdcard,
+  AiOutlineBank,
+  AiOutlineTrophy,
+  AiOutlineCalendar,
+  AiOutlineTeam
+} from 'react-icons/ai';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,7 +29,7 @@ const ProfilePage: React.FC = () => {
   const [registeredEvents, setRegisteredEvents] = useState<RegisteredEvent[]>([]);
   const [allEvents, setAllEvents] = useState<EventListItem[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
-  
+
   // Form state
   const [formData, setFormData] = useState<UpdateProfileRequest>({
     name: '',
@@ -29,21 +42,38 @@ const ProfilePage: React.FC = () => {
   // Validation errors
   const [errors, setErrors] = useState<Partial<Record<keyof UpdateProfileRequest, string>>>({});
 
+  const departments = [
+    'Computer Science and Engineering',
+    'CSE (AI & ML)',
+    'Information Technology',
+    'Electronics and Communication Engineering',
+    'Electrical and Electronics Engineering',
+    'Mechanical Engineering',
+    'Civil Engineering',
+    'Chemical Engineering',
+    'Aerospace Engineering',
+    'Biomedical Engineering',
+    'Other'
+  ];
+
   // Fetch profile data
   useEffect(() => {
     const getProfile = async () => {
       try {
         setLoading(true);
         const response = await fetchProfile();
-        setProfile(response.profile);
-        
+
+        // Handle the correct API response structure: { message, profile }
+        const profileData = response.profile || response;
+        setProfile(profileData);
+
         // Initialize form data with profile data
         setFormData({
-          name: response.profile.name,
-          department: response.profile.department,
-          email: response.profile.email,
-          phoneno: Number(response.profile.phoneno),
-          yearofstudy: response.profile.yearofstudy,
+          name: profileData.name,
+          department: profileData.department,
+          email: profileData.email,
+          phoneno: Number(profileData.phoneno),
+          yearofstudy: profileData.yearofstudy,
         });
       } catch (error) {
         console.error('Failed to fetch profile:', error);
@@ -58,7 +88,7 @@ const ProfilePage: React.FC = () => {
 
   // Fetch events data
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchEventsData = async () => {
       try {
         setEventsLoading(true);
         const [regRes, ongoing, upcoming] = await Promise.all([
@@ -66,40 +96,28 @@ const ProfilePage: React.FC = () => {
           getOngoingEvents(),
           getUpcomingEvents(),
         ]);
-        
+
         setRegisteredEvents(regRes.data);
         setAllEvents([...ongoing.data, ...upcoming.data]);
       } catch (error) {
-        console.error('Error fetching events:', error);
+        console.error('Error fetching events data:', error);
       } finally {
         setEventsLoading(false);
       }
     };
-    
-    fetchEvents();
-  }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'phoneno' || name === 'yearofstudy' ? Number(value) : value
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[name as keyof UpdateProfileRequest]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: undefined
-      }));
-    }
-  };
+    fetchEventsData();
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof UpdateProfileRequest, string>> = {};
 
-    if (!formData.name?.trim()) {
+    if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
+    }
+
+    if (!formData.department) {
+      newErrors.department = 'Department is required';
     }
 
     if (!formData.email) {
@@ -120,234 +138,361 @@ const ProfilePage: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'phoneno' || name === 'yearofstudy' ? Number(value) : value
+    }));
+
+    // Clear error when user starts typing
+    if (errors[name as keyof UpdateProfileRequest]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+    }
+  };
+
+  const handleSave = async () => {
     if (!validateForm()) {
       return;
     }
 
     setSaving(true);
     try {
-      const response = await updateProfile(formData);
-      setProfile(response.profile);
-      showToast.success('Profile updated successfully');
+      await updateProfile(formData);
+
+      // Update profile state with new data
+      if (profile) {
+        setProfile({
+          ...profile,
+          ...formData,
+          phoneno: formData.phoneno.toString()
+        });
+      }
+
       setIsEditing(false);
-    } catch (error) {
+      showToast.success('Profile updated successfully!');
+    } catch (error: any) {
       console.error('Failed to update profile:', error);
-      showToast.error('Failed to update profile');
+      showToast.error(error.message || 'Failed to update profile');
     } finally {
       setSaving(false);
     }
   };
 
-  const departments = [
-    'Computer Science and Engineering',
-    'CSE (AI & ML)',
-    'Information Technology',
-    'Electronics and Communication Engineering',
-    'Electrical and Electronics Engineering',
-    'Mechanical Engineering',
-    'Civil Engineering',
-    'Chemical Engineering',
-    'Aerospace Engineering',
-    'Biomedical Engineering',
-    'Other'
-  ];
+  const handleCancel = () => {
+    if (profile) {
+      setFormData({
+        name: profile.name,
+        department: profile.department,
+        email: profile.email,
+        phoneno: Number(profile.phoneno),
+        yearofstudy: profile.yearofstudy,
+      });
+    }
+    setErrors({});
+    setIsEditing(false);
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center animate-fade-in">
+          <div className="loading-spinner mx-auto mb-4"></div>
+          <p className="text-text-secondary">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-4"></div>
-          <p className="text-text-secondary">Loading profile...</p>
+          <p className="text-text-secondary mb-4">Failed to load profile</p>
+          <button onClick={() => window.location.reload()} className="btn btn-primary">
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-text">Your Profile</h1>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/dashboard')}
-            className="px-4 py-2"
-          >
-            Back to Dashboard
-          </Button>
-        </div>
-
-        {/* Profile Card */}
-        <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
-          {!isEditing ? (
-            // View Mode
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center">
-                  <svg className="w-12 h-12 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+    <div className="min-h-screen bg-background animate-fade-in">
+      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+        {/* Header Section */}
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-transparent rounded-2xl"></div>
+          <div className="relative card glass-effect">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="flex items-center space-x-4 animate-slide-up">
+                <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
+                  <AiOutlineUser className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-text">{profile?.name}</h2>
-                  <p className="text-text-secondary">{profile?.rollno}</p>
+                  <h1 className="text-3xl font-bold mb-1">
+                    <span className="gradient-text">{profile.name}</span>
+                  </h1>
+                  <p className="text-text-secondary">{profile.department}</p>
+                  <p className="text-text-muted text-sm">Roll No: {profile.rollno}</p>
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <p className="text-text-secondary text-sm">Department</p>
-                  <p className="text-text font-medium">{profile?.department}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-text-secondary text-sm">Year of Study</p>
-                  <p className="text-text font-medium">{profile?.yearofstudy}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-text-secondary text-sm">Email</p>
-                  <p className="text-text font-medium">{profile?.email}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-text-secondary text-sm">Phone Number</p>
-                  <p className="text-text font-medium">{profile?.phoneno}</p>
-                </div>
-              </div>
-
-              <div className="pt-4">
-                <Button onClick={() => setIsEditing(true)}>
-                  Edit Profile
-                </Button>
+              <div className="flex items-center space-x-3 animate-scale-in">
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="btn btn-outline"
+                  >
+                    <AiOutlineEdit className="w-4 h-4" />
+                    Edit Profile
+                  </button>
+                ) : (
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="btn btn-primary"
+                    >
+                      {saving ? (
+                        <>
+                          <div className="loading-spinner mr-2"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <AiOutlineCheck className="w-4 h-4" />
+                          Save
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="btn btn-secondary"
+                    >
+                      <AiOutlineClose className="w-4 h-4" />
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-          ) : (
-            // Edit Mode
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Full Name"
-                  name="name"
-                  value={formData.name || ''}
-                  onChange={handleInputChange}
-                  error={errors.name}
-                  placeholder="Enter your full name"
-                  required
-                />
-
-                <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-text-secondary mb-1 sm:mb-2">
-                    Roll Number
-                  </label>
-                  <input
-                    type="text"
-                    value={profile?.rollno || ''}
-                    className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-input-bg border border-border rounded-lg text-text-secondary cursor-not-allowed"
-                    disabled
-                  />
-                  <p className="mt-1 text-xs text-text-secondary">Roll number cannot be changed</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-text-secondary mb-1 sm:mb-2">
-                    Department
-                  </label>
-                  <select
-                    name="department"
-                    value={formData.department || ''}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-input-bg border border-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200 hover:border-text-secondary text-xs sm:text-base"
-                    required
-                  >
-                    <option value="">Select your department</option>
-                    {departments.map(dept => (
-                      <option key={dept} value={dept} className="bg-input-bg text-text">
-                        {dept}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.department && (
-                    <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-red-500">{errors.department}</p>
-                  )}
-                </div>
-
-                <Input
-                  label="Year of Study"
-                  name="yearofstudy"
-                  type="number"
-                  min="1"
-                  max="4"
-                  value={formData.yearofstudy || ''}
-                  onChange={handleInputChange}
-                  error={errors.yearofstudy}
-                  placeholder="Year (1-4)"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input
-                  label="Email Address"
-                  name="email"
-                  type="email"
-                  value={formData.email || ''}
-                  onChange={handleInputChange}
-                  error={errors.email}
-                  placeholder="Enter your email"
-                  required
-                />
-
-                <Input
-                  label="Phone Number"
-                  name="phoneno"
-                  type="tel"
-                  value={formData.phoneno || ''}
-                  onChange={handleInputChange}
-                  error={errors.phoneno}
-                  placeholder="Enter your phone number"
-                  required
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  loading={saving}
-                  className="px-6"
-                >
-                  Save Changes
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsEditing(false)}
-                  disabled={saving}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          )}
+          </div>
         </div>
 
-        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Information */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Personal Details Card */}
+            <div className="card animate-slide-up" style={{ animationDelay: '100ms' }}>
+              <div className="card-header">
+                <h2 className="card-title">Personal Information</h2>
+                <p className="card-description">Your basic profile details</p>
+              </div>
 
-        {/* Security Section */}
-        <div className="bg-surface rounded-xl shadow-lg border border-border p-6">
-          <h2 className="text-xl font-bold text-text mb-4">Security</h2>
-          <p className="text-text-secondary mb-4">
-            Want to change your password? You can reset it using the forgot password flow.
-          </p>
-          <Button
-            variant="outline"
-            onClick={() => navigate('/forgot-password')}
-          >
-            Reset Password
-          </Button>
+              {isEditing ? (
+                <div className="space-y-6">
+                  <div className="form-group">
+                    <label className="form-label">
+                      <AiOutlineUser className="w-4 h-4 inline mr-2" />
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <input
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="form-input pl-10"
+                        placeholder="Enter your full name"
+                      />
+                      <AiOutlineUser className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-muted" />
+                    </div>
+                    {errors.name && <div className="form-error">{errors.name}</div>}
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <AiOutlineMail className="w-4 h-4 inline mr-2" />
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <input
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="form-input pl-10"
+                        placeholder="Enter your email"
+                      />
+                      <AiOutlineMail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-muted" />
+                    </div>
+                    {errors.email && <div className="form-error">{errors.email}</div>}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="form-group">
+                      <label className="form-label">
+                        <AiOutlinePhone className="w-4 h-4 inline mr-2" />
+                        Phone Number
+                      </label>
+                      <div className="relative">
+                        <input
+                          name="phoneno"
+                          type="tel"
+                          value={formData.phoneno || ''}
+                          onChange={handleInputChange}
+                          className="form-input pl-10"
+                          placeholder="Enter phone number"
+                        />
+                        <AiOutlinePhone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-muted" />
+                      </div>
+                      {errors.phoneno && <div className="form-error">{errors.phoneno}</div>}
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">
+                        <AiOutlineBank className="w-4 h-4 inline mr-2" />
+                        Year of Study
+                      </label>
+                      <select
+                        name="yearofstudy"
+                        value={formData.yearofstudy}
+                        onChange={handleInputChange}
+                        className="form-input"
+                      >
+                        <option value={1}>1st Year</option>
+                        <option value={2}>2nd Year</option>
+                        <option value={3}>3rd Year</option>
+                        <option value={4}>4th Year</option>
+                      </select>
+                      {errors.yearofstudy && <div className="form-error">{errors.yearofstudy}</div>}
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Department</label>
+                    <select
+                      name="department"
+                      value={formData.department}
+                      onChange={handleInputChange}
+                      className="form-input"
+                    >
+                      <option value="">Select your department</option>
+                      {departments.map((dept) => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                    {errors.department && <div className="form-error">{errors.department}</div>}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3 p-3 bg-surface-hover rounded-lg">
+                    <AiOutlineMail className="w-5 h-5 text-text-secondary" />
+                    <div>
+                      <p className="text-sm text-text-secondary">Email</p>
+                      <p className="font-medium">{profile.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 bg-surface-hover rounded-lg">
+                    <AiOutlinePhone className="w-5 h-5 text-text-secondary" />
+                    <div>
+                      <p className="text-sm text-text-secondary">Phone</p>
+                      <p className="font-medium">{profile.phoneno}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 bg-surface-hover rounded-lg">
+                    <AiOutlineBank className="w-5 h-5 text-text-secondary" />
+                    <div>
+                      <p className="text-sm text-text-secondary">Year of Study</p>
+                      <p className="font-medium">{profile.yearofstudy} Year</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Stats Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Stats */}
+            <div className="card animate-slide-up" style={{ animationDelay: '300ms' }}>
+              <div className="card-header">
+                <h3 className="card-title">Quick Stats</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-500/10 to-blue-600/5 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <AiOutlineTrophy className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-text-secondary">Events Joined</p>
+                      <p className="text-xl font-bold">{registeredEvents.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-500/10 to-green-600/5 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <AiOutlineCalendar className="w-5 h-5 text-green-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-text-secondary">Available Events</p>
+                      <p className="text-xl font-bold">{allEvents.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-500/10 to-purple-600/5 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <AiOutlineTeam className="w-5 h-5 text-purple-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-text-secondary">Active Teams</p>
+                      <p className="text-xl font-bold">
+                        {registeredEvents.filter(event => event.team_id).length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="card animate-slide-up" style={{ animationDelay: '400ms' }}>
+              <div className="card-header">
+                <h3 className="card-title">Quick Actions</h3>
+              </div>
+              <div className="space-y-3">
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="btn btn-outline w-full justify-start"
+                >
+                  <AiOutlineCalendar className="w-4 h-4" />
+                  Browse Events
+                </button>
+                <button
+                  onClick={() => navigate('/inbox')}
+                  className="btn btn-outline w-full justify-start"
+                >
+                  <AiOutlineTeam className="w-4 h-4" />
+                  Check Invitations
+                </button>
+                <button
+                  onClick={() => navigate('/timeline')}
+                  className="btn btn-outline w-full justify-start"
+                >
+                  <AiOutlineTrophy className="w-4 h-4" />
+                  View Timeline
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
