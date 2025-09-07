@@ -5,16 +5,18 @@ import { getRegisteredEvents, getOngoingEvents, getUpcomingEvents, fetchInvitati
 import type { RegisteredEvent, EventListItem, InviteWithDetails } from '../types/user';
 import EventCard from '../components/EventCard';
 import RegisteredEvents from '../components/RegisteredEvents';
-import { 
-  AiOutlineCheckCircle, 
-  AiOutlineCalendar, 
-  AiOutlineTeam, 
+import {
+  AiOutlineCheckCircle,
+  AiOutlineCalendar,
+  AiOutlineTeam,
   AiOutlineSearch,
-  AiOutlineFilter
+  AiOutlineFilter,
+  AiOutlineTrophy,
+  AiOutlineClockCircle
 } from 'react-icons/ai';
 
 const DashboardPage: React.FC = () => {
-  const { user} = useAuth();
+  const { user } = useAuth();
   const [registeredEvents, setRegisteredEvents] = useState<RegisteredEvent[]>([]);
   const [allEvents, setAllEvents] = useState<EventListItem[]>([]);
   const [invitations, setInvitations] = useState<InviteWithDetails[]>([]);
@@ -32,7 +34,7 @@ const DashboardPage: React.FC = () => {
           getUpcomingEvents(),
           fetchInvitations().catch(() => ({ data: [] })) // Handle if invitations fail
         ]);
-        
+
         setRegisteredEvents(regRes.data);
         setAllEvents([...ongoing.data, ...upcoming.data]);
         setInvitations(invitationsRes.data || []);
@@ -52,91 +54,90 @@ const DashboardPage: React.FC = () => {
     return matchesStatus && matchesType;
   });
 
-  return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-text">
-              Welcome back, {user?.name || 'Student'}!
-            </h1>
-            <p className="text-text-secondary mt-1">
-              Manage your events and team invitations
-            </p>
-          </div>
-        </div>
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-surface rounded-lg p-4 border border-border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-text-secondary text-sm">Registered Events</p>
-                <p className="text-2xl font-bold text-text">{registeredEvents.length}</p>
+  return (
+    <div className="min-h-screen bg-background animate-fade-in">
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Header Section */}
+        <div className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-transparent rounded-2xl"></div>
+          <div className="relative card glass-effect">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="animate-slide-up">
+                <h1 className="text-4xl lg:text-5xl font-bold mb-2">
+                  {getGreeting()}, <span className="gradient-text">{user?.name || 'Student'}</span>!
+                </h1>
+                <p className="text-text-secondary text-lg">
+                  Ready to explore new events and manage your activities?
+                </p>
               </div>
-              <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
-                <AiOutlineCheckCircle className="w-6 h-6 text-blue-500" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-surface rounded-lg p-4 border border-border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-text-secondary text-sm">Available Events</p>
-                <p className="text-2xl font-bold text-text">{allEvents.length}</p>
-              </div>
-              <div className="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
-                <AiOutlineCalendar className="w-6 h-6 text-green-500" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-surface rounded-lg p-4 border border-border">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-text-secondary text-sm">Team Invitations</p>
-                <p className="text-2xl font-bold text-text">{invitations.length}</p>
-              </div>
-              <div className="w-10 h-10 bg-purple-500/10 rounded-full flex items-center justify-center">
-                <AiOutlineTeam className="w-6 h-6 text-purple-500" />
+              <div className="flex items-center space-x-3 animate-scale-in">
+                <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
+                  <AiOutlineTrophy className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm text-text-secondary">Your Progress</div>
+                  <div className="text-lg font-semibold">{registeredEvents.length} Events Joined</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Registered Events Section */}
-        <RegisteredEvents />
+        <section className="animate-fade-in" style={{ animationDelay: '400ms' }}>
+          <div className="card-header">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <AiOutlineCheckCircle className="w-5 h-5 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold">My Events</h2>
+            </div>
+          </div>
+          <RegisteredEvents />
+        </section>
 
         {/* All Events Section with Filters */}
-        <section className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <h2 className="text-2xl font-bold text-text">All Events</h2>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
+        <section className="space-y-6 animate-fade-in" style={{ animationDelay: '500ms' }}>
+          <div className="card-header">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-secondary rounded-lg flex items-center justify-center">
+                  <AiOutlineCalendar className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold">Discover Events</h2>
+              </div>
+              <button
                 onClick={() => setShowFilters(!showFilters)}
+                className={`btn btn-outline ${showFilters ? 'btn-primary' : ''}`}
               >
-                <span className="mr-2">Filter</span>
-                <AiOutlineFilter
-                  className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`}
-                />
-              </Button>
+                <AiOutlineFilter className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                <span>Filters</span>
+              </button>
             </div>
           </div>
 
-          {/* Filter Options */}
+          {/* Enhanced Filter Options */}
           {showFilters && (
-            <div className="bg-surface p-4 rounded-lg border border-border space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
+            <div className="card glass-effect animate-slide-up">
+              <div className="card-header">
+                <h3 className="card-title">Filter Events</h3>
+                <p className="card-description">Customize your event discovery experience</p>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="form-group">
+                  <label className="form-label">
+                    <AiOutlineClockCircle className="w-4 h-4 inline mr-2" />
                     Event Status
                   </label>
                   <select
-                    className="w-full bg-input-bg border border-border rounded-lg p-3 text-text focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="form-input"
                     value={eventStatus}
                     onChange={(e) => setEventStatus(e.target.value as any)}
                   >
@@ -145,12 +146,13 @@ const DashboardPage: React.FC = () => {
                     <option value="upcoming">Upcoming</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                <div className="form-group">
+                  <label className="form-label">
+                    <AiOutlineTrophy className="w-4 h-4 inline mr-2" />
                     Event Type
                   </label>
                   <select
-                    className="w-full bg-input-bg border border-border rounded-lg p-3 text-text focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="form-input"
                     value={eventType}
                     onChange={(e) => setEventType(e.target.value as any)}
                   >
@@ -165,29 +167,48 @@ const DashboardPage: React.FC = () => {
 
           {/* Events Grid */}
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
-              <span className="ml-3 text-text-secondary">Loading events...</span>
+            <div className="card">
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="loading-spinner mb-4"></div>
+                <p className="text-text-secondary text-lg">Loading amazing events for you...</p>
+              </div>
             </div>
           ) : filteredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 place-items-center">
-              {filteredEvents.map((event) => (
-                <EventCard
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredEvents.map((event, index) => (
+                <div
                   key={event.id}
-                  event={event}
-                  isRegistered={registeredEvents.some(
-                    reg => reg.event.id === event.id
-                  )}
-                />
+                  className="animate-scale-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <EventCard
+                    event={event}
+                    isRegistered={registeredEvents.some(
+                      reg => reg.event.id === event.id
+                    )}
+                  />
+                </div>
               ))}
             </div>
           ) : (
-            <div className="bg-surface rounded-lg p-8 text-center border border-border">
-              <AiOutlineSearch className="w-16 h-16 mx-auto text-text-secondary mb-4" />
-              <p className="text-text-secondary text-lg">No events found</p>
-              <p className="text-text-secondary text-sm mt-1">
-                Try adjusting your filters or check back later for new events
+            <div className="card text-center py-16">
+              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center">
+                <AiOutlineSearch className="w-12 h-12 text-text-secondary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No Events Found</h3>
+              <p className="text-text-secondary mb-6 max-w-md mx-auto">
+                We couldn't find any events matching your current filters. Try adjusting your search criteria or check back later for new events.
               </p>
+              <button
+                onClick={() => {
+                  setEventStatus('all');
+                  setEventType('all');
+                  setShowFilters(false);
+                }}
+                className="btn btn-primary"
+              >
+                Clear Filters
+              </button>
             </div>
           )}
         </section>

@@ -4,17 +4,28 @@
 
 :root {
   /* Dark Theme Colors */
-  --color-primary: #000000;        /* Pure black */
-  --color-secondary: #111111;      /* Very dark gray */
-  --color-accent: #ffffff;         /* Pure white */
-  --color-background: #0a0a0a;     /* Deep black background */
-  --color-surface: #1a1a1a;       /* Dark surface */
-  --color-text: #ffffff;          /* White text */
-  --color-text-secondary: #a3a3a3; /* Gray text */
-  --color-border: #333333;        /* Dark border */
-  --color-input-bg: #1f1f1f;      /* Input background */
-  --color-button-bg: #1f1f1f;     /* Button background */
-  --color-button-hover: #2a2a2a;  /* Button hover state */
+  --color-primary: #000000;
+  /* Pure black */
+  --color-secondary: #111111;
+  /* Very dark gray */
+  --color-accent: #ffffff;
+  /* Pure white */
+  --color-background: #0a0a0a;
+  /* Deep black background */
+  --color-surface: #1a1a1a;
+  /* Dark surface */
+  --color-text: #ffffff;
+  /* White text */
+  --color-text-secondary: #a3a3a3;
+  /* Gray text */
+  --color-border: #333333;
+  /* Dark border */
+  --color-input-bg: #1f1f1f;
+  /* Input background */
+  --color-button-bg: #1f1f1f;
+  /* Button background */
+  --color-button-hover: #2a2a2a;
+  /* Button hover state */
 }
 
 /* Light theme */

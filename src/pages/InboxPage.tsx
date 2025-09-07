@@ -266,47 +266,6 @@ const InboxPage: React.FC = () => {
             </section>
           </div>
         )}
-        
-        {/* Summary Cards */}
-        {!loading && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-            <div className="bg-surface rounded-lg p-4 border border-border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-text-secondary text-sm">Ongoing Events</p>
-                  <p className="text-2xl font-bold text-text">{ongoingEvents.length}</p>
-                </div>
-                <div className="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
-                  <AiOutlineCalendar className="w-6 h-6 text-green-500" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-surface rounded-lg p-4 border border-border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-text-secondary text-sm">Pending Invitations</p>
-                  <p className="text-2xl font-bold text-text">{invitations.length}</p>
-                </div>
-                <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
-                  <AiOutlineTeam className="w-6 h-6 text-blue-500" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-surface rounded-lg p-4 border border-border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-text-secondary text-sm">Total Notifications</p>
-                  <p className="text-2xl font-bold text-text">{ongoingEvents.length + invitations.length}</p>
-                </div>
-                <div className="w-10 h-10 bg-purple-500/10 rounded-full flex items-center justify-center">
-                  <AiOutlineBell className="w-6 h-6 text-purple-500" />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
