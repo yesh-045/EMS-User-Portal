@@ -31,7 +31,7 @@ const ProfilePage: React.FC = () => {
   const [eventsLoading, setEventsLoading] = useState(true);
 
   // Form state
-  const [formData, setFormData] = useState<UpdateProfileRequest>({
+  const [formData, setFormData] = useState<Required<UpdateProfileRequest>>({
     name: '',
     department: '',
     email: '',
@@ -72,7 +72,7 @@ const ProfilePage: React.FC = () => {
           name: profileData.name,
           department: profileData.department,
           email: profileData.email,
-          phoneno: Number(profileData.phoneno),
+          phoneno: typeof profileData.phoneno === 'string' ? parseInt(profileData.phoneno) : profileData.phoneno,
           yearofstudy: profileData.yearofstudy,
         });
       } catch (error) {
@@ -112,7 +112,7 @@ const ProfilePage: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof UpdateProfileRequest, string>> = {};
 
-    if (!formData.name.trim()) {
+    if (!formData.name?.trim()) {
       newErrors.name = 'Name is required';
     }
 
@@ -126,11 +126,11 @@ const ProfilePage: React.FC = () => {
       newErrors.email = 'Email is invalid';
     }
 
-    if (!formData.phoneno || formData.phoneno.toString().length < 10) {
-      newErrors.phoneno = 'Valid phone number is required';
+    if (!formData.phoneno || formData.phoneno.toString().length !== 10) {
+      newErrors.phoneno = 'Phone number must be 10 digits';
     }
 
-    if (formData.yearofstudy < 1 || formData.yearofstudy > 4) {
+    if (typeof formData.yearofstudy !== 'number' || formData.yearofstudy < 1 || formData.yearofstudy > 4) {
       newErrors.yearofstudy = 'Year of study must be between 1 and 4';
     }
 
@@ -142,7 +142,9 @@ const ProfilePage: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'phoneno' || name === 'yearofstudy' ? Number(value) : value
+      [name]: name === 'phoneno' || name === 'yearofstudy' ? 
+        (value === '' ? prev[name as keyof UpdateProfileRequest] : Number(value)) : 
+        value
     }));
 
     // Clear error when user starts typing
@@ -167,8 +169,11 @@ const ProfilePage: React.FC = () => {
       if (profile) {
         setProfile({
           ...profile,
-          ...formData,
-          phoneno: formData.phoneno.toString()
+          name: formData.name || profile.name,
+          department: formData.department || profile.department,
+          email: formData.email || profile.email,
+          phoneno: formData.phoneno || profile.phoneno,
+          yearofstudy: formData.yearofstudy || profile.yearofstudy
         });
       }
 

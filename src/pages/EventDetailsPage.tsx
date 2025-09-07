@@ -124,9 +124,10 @@ const EventDetailsPage: React.FC = () => {
     setFoundUserId(null);
 
     try {
-      const response = await getUserIdByRollNo({ rollno: inviteRoll.trim() });
+      const normalizedRollNo = inviteRoll.trim().toLowerCase();
+      const response = await getUserIdByRollNo({ rollno: normalizedRollNo });
       setFoundUserId(response.user_id);
-      setInviteStatus(`User found: ${inviteRoll}`);
+      setInviteStatus(`User found: ${normalizedRollNo}`);
     } catch (error) {
       setInviteStatus('User not found with this roll number');
       setFoundUserId(null);
