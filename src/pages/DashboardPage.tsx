@@ -115,51 +115,65 @@ const DashboardPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`btn btn-outline ${showFilters ? 'btn-primary' : ''}`}
+                className={`btn ${showFilters ? 'btn-primary' : 'btn-outline'} transition-all duration-300`}
               >
-                <AiOutlineFilter className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-                <span>Filters</span>
+                <AiOutlineFilter className={`w-4 h-4 mr-2 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
               </button>
             </div>
           </div>
 
           {/* Enhanced Filter Options */}
           {showFilters && (
-            <div className="card glass-effect animate-slide-up">
-              <div className="card-header">
-                <h3 className="card-title">Filter Events</h3>
-                <p className="card-description">Customize your event discovery experience</p>
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="form-group">
-                  <label className="form-label">
-                    <AiOutlineClockCircle className="w-4 h-4 inline mr-2" />
-                    Event Status
-                  </label>
-                  <select
-                    className="form-input"
-                    value={eventStatus}
-                    onChange={(e) => setEventStatus(e.target.value as any)}
-                  >
-                    <option value="all">All Status</option>
-                    <option value="ongoing">Ongoing</option>
-                    <option value="upcoming">Upcoming</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">
-                    <AiOutlineTrophy className="w-4 h-4 inline mr-2" />
-                    Event Type
-                  </label>
-                  <select
-                    className="form-input"
-                    value={eventType}
-                    onChange={(e) => setEventType(e.target.value as any)}
-                  >
-                    <option value="all">All Types</option>
-                    <option value="technical">Technical</option>
-                    <option value="non-technical">Non-Technical</option>
-                  </select>
+            <div className="relative">
+              <div className="bg-surface border border-border rounded-2xl shadow-xl overflow-hidden animate-slide-up">
+                {/* Top Border */}
+                <div className="h-1 bg-border"></div>
+                
+                <div className="p-6 lg:p-8">
+                  {/* Filter Header */}
+                  <div className="mb-6 pb-4 border-b border-border/50">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="w-1 h-6 bg-text-secondary rounded-full"></div>
+                      <h3 className="text-xl font-bold text-text">Filter Events</h3>
+                    </div>
+                    <p className="text-text-secondary text-sm ml-3">Customize your event discovery experience</p>
+                  </div>
+
+                  {/* Filter Controls */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="form-group">
+                      <label className="form-label flex items-center text-base">
+                        <AiOutlineClockCircle className="w-5 h-5 inline mr-2 text-text-secondary" />
+                        Event Status
+                      </label>
+                      <select
+                        className="form-input transition-all duration-200 focus:shadow-lg cursor-pointer"
+                        value={eventStatus}
+                        onChange={(e) => setEventStatus(e.target.value as any)}
+                      >
+                        <option value="all">All Status</option>
+                        <option value="ongoing">Ongoing</option>
+                        <option value="upcoming">Upcoming</option>
+                      </select>
+                    </div>
+                    
+                    <div className="form-group">
+                      <label className="form-label flex items-center text-base">
+                        <AiOutlineTrophy className="w-5 h-5 inline mr-2 text-text-secondary" />
+                        Event Type
+                      </label>
+                      <select
+                        className="form-input transition-all duration-200 focus:shadow-lg cursor-pointer"
+                        value={eventType}
+                        onChange={(e) => setEventType(e.target.value as any)}
+                      >
+                        <option value="all">All Types</option>
+                        <option value="technical">Technical</option>
+                        <option value="non-technical">Non-Technical</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -254,10 +254,10 @@ const EventDetailsPage: React.FC = () => {
             <div className="relative rounded-2xl overflow-hidden bg-secondary border border-border">
               <img
                 src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
-                alt={event.name}
+                alt={"./csea.png"}
                 className="w-full aspect-[16/9] sm:aspect-[4/3] lg:aspect-[16/10] object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/default-event-poster.jpg';
+                  (e.target as HTMLImageElement).src = '/1.jpg';
                 }}
               />
               {'status' in event && (
@@ -428,14 +428,14 @@ const EventDetailsPage: React.FC = () => {
               <h2 className="text-xl font-bold mb-4 text-text">Invite Team Member</h2>
               
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                <div className="form-group">
+                  <label className="form-label">
                     Roll Number
                   </label>
                   <input
                     type="text"
                     placeholder="Enter roll number"
-                    className="w-full p-3 rounded-lg border border-border bg-input-bg text-text focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="form-input"
                     value={inviteRoll}
                     onChange={(e) => setInviteRoll(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && !foundUserId && handleSearchUser()}
