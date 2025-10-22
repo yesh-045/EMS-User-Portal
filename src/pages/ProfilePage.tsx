@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { fetchProfile, updateProfile, getRegisteredEvents, getOngoingEvents, getUpcomingEvents } from '../api';
-import Button from '../components/Button';
-import Input from '../components/Input';
-import EventTimeline from '../components/EventTimeline';
+import { fetchProfile, updateProfile } from '../api';
 import { showToast } from '../utils/toast';
-import type { UserProfile, UpdateProfileRequest, RegisteredEvent, EventListItem } from '../types/user';
+import type { UserProfile, UpdateProfileRequest } from '../types/user';
 import {
   AiOutlineUser,
   AiOutlineEdit,
@@ -13,22 +9,14 @@ import {
   AiOutlineClose,
   AiOutlineMail,
   AiOutlinePhone,
-  AiOutlineIdcard,
-  AiOutlineBank,
-  AiOutlineTrophy,
-  AiOutlineCalendar,
-  AiOutlineTeam
+  AiOutlineBank
 } from 'react-icons/ai';
 
 const ProfilePage: React.FC = () => {
-  const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [registeredEvents, setRegisteredEvents] = useState<RegisteredEvent[]>([]);
-  const [allEvents, setAllEvents] = useState<EventListItem[]>([]);
-  const [eventsLoading, setEventsLoading] = useState(true);
 
   // Form state
   const [formData, setFormData] = useState<Required<UpdateProfileRequest>>({
@@ -64,16 +52,28 @@ const ProfilePage: React.FC = () => {
         const response = await fetchProfile();
 
         // Handle the correct API response structure: { message, profile }
-        const profileData = response.profile || response;
-        setProfile(profileData);
-
-        // Initialize form data with profile data
-        setFormData({
+        const profileData: any = response.profile || response;
+        
+        // Convert phoneno to number if it's a string and ensure all required fields exist
+        const userProfile: UserProfile = {
+          id: profileData.id || 0,
           name: profileData.name,
+          rollno: profileData.rollno,
           department: profileData.department,
           email: profileData.email,
           phoneno: typeof profileData.phoneno === 'string' ? parseInt(profileData.phoneno) : profileData.phoneno,
           yearofstudy: profileData.yearofstudy,
+        };
+        
+        setProfile(userProfile);
+
+        // Initialize form data with profile data
+        setFormData({
+          name: userProfile.name,
+          department: userProfile.department,
+          email: userProfile.email,
+          phoneno: userProfile.phoneno,
+          yearofstudy: userProfile.yearofstudy,
         });
       } catch (error) {
         console.error('Failed to fetch profile:', error);
@@ -84,29 +84,6 @@ const ProfilePage: React.FC = () => {
     };
 
     getProfile();
-  }, []);
-
-  // Fetch events data
-  useEffect(() => {
-    const fetchEventsData = async () => {
-      try {
-        setEventsLoading(true);
-        const [regRes, ongoing, upcoming] = await Promise.all([
-          getRegisteredEvents(),
-          getOngoingEvents(),
-          getUpcomingEvents(),
-        ]);
-
-        setRegisteredEvents(regRes.data);
-        setAllEvents([...ongoing.data, ...upcoming.data]);
-      } catch (error) {
-        console.error('Error fetching events data:', error);
-      } finally {
-        setEventsLoading(false);
-      }
-    };
-
-    fetchEventsData();
   }, []);
 
   const validateForm = (): boolean => {
@@ -226,40 +203,58 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header Section */}
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-transparent rounded-2xl"></div>
-          <div className="relative card glass-effect">
+        <div className="relative overflow-hidden rounded-2xl">
+          {/* Background */}
+          <div className="absolute inset-0 bg-surface/50 rounded-2xl"></div>
+          
+          <div className="relative bg-surface/80 backdrop-blur-sm border border-border rounded-2xl p-6 lg:p-8 shadow-xl">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-              <div className="flex items-center space-x-4 animate-slide-up">
-                <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
-                  <AiOutlineUser className="w-8 h-8 text-white" />
+              {/* Profile Avatar and Info */}
+              <div className="flex items-center space-x-4 lg:space-x-6 animate-slide-up">
+                {/* Avatar */}
+                <div className="relative">
+                  <div className="w-20 h-20 lg:w-24 lg:h-24 bg-border rounded-full flex items-center justify-center shadow-lg">
+                    <AiOutlineUser className="w-10 h-10 lg:w-12 lg:h-12 text-text-secondary" />
+                  </div>
                 </div>
+                
+                {/* User Details */}
                 <div>
-                  <h1 className="text-3xl font-bold mb-1">
-                    <span className="gradient-text">{profile.name}</span>
+                  <h1 className="text-2xl lg:text-4xl font-bold mb-2 text-text">
+                    {profile.name}
                   </h1>
-                  <p className="text-text-secondary">{profile.department}</p>
-                  <p className="text-text-muted text-sm">Roll No: {profile.rollno}</p>
+                  <div className="space-y-1">
+                    <p className="text-text-secondary font-medium text-sm lg:text-base flex items-center">
+                      <span className="inline-block w-2 h-2 bg-text-secondary rounded-full mr-2"></span>
+                      {profile.department}
+                    </p>
+                    <p className="text-text-secondary text-xs lg:text-sm flex items-center">
+                      <span className="inline-block w-2 h-2 bg-text-secondary rounded-full mr-2"></span>
+                      Roll No: {profile.rollno}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-3 animate-scale-in">
+              
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-3 animate-scale-in w-full lg:w-auto">
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="btn btn-outline"
+                    className="btn btn-outline w-full lg:w-auto transition-all duration-300"
                   >
-                    <AiOutlineEdit className="w-4 h-4" />
+                    <AiOutlineEdit className="w-4 h-4 mr-2" />
                     Edit Profile
                   </button>
                 ) : (
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 w-full lg:w-auto">
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className="btn btn-primary"
+                      className="btn btn-primary flex-1 lg:flex-initial shadow-lg"
                     >
                       {saving ? (
                         <>
@@ -268,16 +263,16 @@ const ProfilePage: React.FC = () => {
                         </>
                       ) : (
                         <>
-                          <AiOutlineCheck className="w-4 h-4" />
+                          <AiOutlineCheck className="w-4 h-4 mr-2" />
                           Save
                         </>
                       )}
                     </button>
                     <button
                       onClick={handleCancel}
-                      className="btn btn-secondary"
+                      className="btn btn-secondary flex-1 lg:flex-initial"
                     >
-                      <AiOutlineClose className="w-4 h-4" />
+                      <AiOutlineClose className="w-4 h-4 mr-2" />
                       Cancel
                     </button>
                   </div>
@@ -287,215 +282,173 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Information */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Personal Details Card */}
-            <div className="card animate-slide-up" style={{ animationDelay: '100ms' }}>
-              <div className="card-header">
-                <h2 className="card-title">Personal Information</h2>
-                <p className="card-description">Your basic profile details</p>
+        {/* Profile Information Card */}
+        <div className="relative">
+          
+          <div className="relative bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden animate-slide-up" style={{ animationDelay: '100ms' }}>
+            {/* Top Border */}
+            <div className="h-1 bg-border"></div>
+            
+            <div className="p-6 lg:p-8">
+              {/* Card Header */}
+              <div className="mb-6 pb-4 border-b border-border/50">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-1 h-6 bg-text-secondary rounded-full"></div>
+                  <h2 className="text-2xl font-bold text-text">Personal Information</h2>
+                </div>
+                <p className="text-text-secondary text-sm ml-3">Manage your personal details and contact information</p>
               </div>
 
-              {isEditing ? (
-                <div className="space-y-6">
-                  <div className="form-group">
-                    <label className="form-label">
-                      <AiOutlineUser className="w-4 h-4 inline mr-2" />
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <input
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="form-input pl-10"
-                        placeholder="Enter your full name"
-                      />
-                      <AiOutlineUser className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-muted" />
-                    </div>
-                    {errors.name && <div className="form-error">{errors.name}</div>}
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">
-                      <AiOutlineMail className="w-4 h-4 inline mr-2" />
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <input
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="form-input pl-10"
-                        placeholder="Enter your email"
-                      />
-                      <AiOutlineMail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-muted" />
-                    </div>
-                    {errors.email && <div className="form-error">{errors.email}</div>}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="form-group">
-                      <label className="form-label">
-                        <AiOutlinePhone className="w-4 h-4 inline mr-2" />
-                        Phone Number
-                      </label>
-                      <div className="relative">
-                        <input
-                          name="phoneno"
-                          type="tel"
-                          value={formData.phoneno || ''}
-                          onChange={handleInputChange}
-                          className="form-input pl-10"
-                          placeholder="Enter phone number"
-                        />
-                        <AiOutlinePhone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-muted" />
-                      </div>
-                      {errors.phoneno && <div className="form-error">{errors.phoneno}</div>}
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">
-                        <AiOutlineBank className="w-4 h-4 inline mr-2" />
-                        Year of Study
-                      </label>
-                      <select
-                        name="yearofstudy"
-                        value={formData.yearofstudy}
-                        onChange={handleInputChange}
-                        className="form-input"
-                      >
-                        <option value={1}>1st Year</option>
-                        <option value={2}>2nd Year</option>
-                        <option value={3}>3rd Year</option>
-                        <option value={4}>4th Year</option>
-                      </select>
-                      {errors.yearofstudy && <div className="form-error">{errors.yearofstudy}</div>}
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Department</label>
-                    <select
-                      name="department"
-                      value={formData.department}
+            {isEditing ? (
+              <div className="space-y-6">
+                {/* Full Name Input */}
+                <div className="form-group">
+                  <label className="form-label flex items-center text-base">
+                    <AiOutlineUser className="w-5 h-5 inline mr-2 text-text-secondary" />
+                    Full Name
+                  </label>
+                  <div className="relative group">
+                    <input
+                      name="name"
+                      value={formData.name}
                       onChange={handleInputChange}
-                      className="form-input"
+                      className="form-input pl-12 transition-all duration-200 focus:shadow-lg"
+                      placeholder="Enter your full name"
+                    />
+                    <AiOutlineUser className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary transition-colors" />
+                  </div>
+                  {errors.name && <div className="form-error">{errors.name}</div>}
+                </div>
+
+                {/* Email Input */}
+                <div className="form-group">
+                  <label className="form-label flex items-center text-base">
+                    <AiOutlineMail className="w-5 h-5 inline mr-2 text-text-secondary" />
+                    Email Address
+                  </label>
+                  <div className="relative group">
+                    <input
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="form-input pl-12 transition-all duration-200 focus:shadow-lg"
+                      placeholder="Enter your email"
+                    />
+                    <AiOutlineMail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary transition-colors" />
+                  </div>
+                  {errors.email && <div className="form-error">{errors.email}</div>}
+                </div>
+
+                {/* Phone and Year Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="form-group">
+                    <label className="form-label flex items-center text-base">
+                      <AiOutlinePhone className="w-5 h-5 inline mr-2 text-text-secondary" />
+                      Phone Number
+                    </label>
+                    <div className="relative group">
+                      <input
+                        name="phoneno"
+                        type="tel"
+                        value={formData.phoneno || ''}
+                        onChange={handleInputChange}
+                        className="form-input pl-12 transition-all duration-200 focus:shadow-lg"
+                        placeholder="Enter phone number"
+                      />
+                      <AiOutlinePhone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary transition-colors" />
+                    </div>
+                    {errors.phoneno && <div className="form-error">{errors.phoneno}</div>}
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label flex items-center text-base">
+                      <AiOutlineBank className="w-5 h-5 inline mr-2 text-text-secondary" />
+                      Year of Study
+                    </label>
+                    <select
+                      name="yearofstudy"
+                      value={formData.yearofstudy}
+                      onChange={handleInputChange}
+                      className="form-input transition-all duration-200 focus:shadow-lg"
                     >
-                      <option value="">Select your department</option>
-                      {departments.map((dept) => (
-                        <option key={dept} value={dept}>{dept}</option>
-                      ))}
+                      <option value={1}>1st Year</option>
+                      <option value={2}>2nd Year</option>
+                      <option value={3}>3rd Year</option>
+                      <option value={4}>4th Year</option>
                     </select>
-                    {errors.department && <div className="form-error">{errors.department}</div>}
+                    {errors.yearofstudy && <div className="form-error">{errors.yearofstudy}</div>}
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-surface-hover rounded-lg">
-                    <AiOutlineMail className="w-5 h-5 text-text-secondary" />
-                    <div>
-                      <p className="text-sm text-text-secondary">Email</p>
-                      <p className="font-medium">{profile.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-surface-hover rounded-lg">
-                    <AiOutlinePhone className="w-5 h-5 text-text-secondary" />
-                    <div>
-                      <p className="text-sm text-text-secondary">Phone</p>
-                      <p className="font-medium">{profile.phoneno}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-surface-hover rounded-lg">
-                    <AiOutlineBank className="w-5 h-5 text-text-secondary" />
-                    <div>
-                      <p className="text-sm text-text-secondary">Year of Study</p>
-                      <p className="font-medium">{profile.yearofstudy} Year</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
 
-          {/* Stats Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Stats */}
-            <div className="card animate-slide-up" style={{ animationDelay: '300ms' }}>
-              <div className="card-header">
-                <h3 className="card-title">Quick Stats</h3>
+                {/* Department Select */}
+                <div className="form-group">
+                  <label className="form-label flex items-center text-base">
+                    <AiOutlineBank className="w-5 h-5 inline mr-2 text-text-secondary" />
+                    Department
+                  </label>
+                  <select
+                    name="department"
+                    value={formData.department}
+                    onChange={handleInputChange}
+                    className="form-input transition-all duration-200 focus:shadow-lg"
+                  >
+                    <option value="">Select your department</option>
+                    {departments.map((dept) => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
+                  {errors.department && <div className="form-error">{errors.department}</div>}
+                </div>
               </div>
+            ) : (
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-500/10 to-blue-600/5 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                      <AiOutlineTrophy className="w-5 h-5 text-blue-500" />
+                {/* Email Display */}
+                <div className="group relative overflow-hidden rounded-xl border border-border bg-surface p-4 transition-all duration-300 hover:shadow-lg hover:border-text-secondary">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-lg bg-border flex items-center justify-center">
+                        <AiOutlineMail className="w-6 h-6 text-text-secondary" />
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-text-secondary">Events Joined</p>
-                      <p className="text-xl font-bold">{registeredEvents.length}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-500/10 to-green-600/5 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-                      <AiOutlineCalendar className="w-5 h-5 text-green-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-text-secondary">Available Events</p>
-                      <p className="text-xl font-bold">{allEvents.length}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-1">Email Address</p>
+                      <p className="text-base font-semibold text-text truncate">{profile.email}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-500/10 to-purple-600/5 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                      <AiOutlineTeam className="w-5 h-5 text-purple-500" />
+                {/* Phone Display */}
+                <div className="group relative overflow-hidden rounded-xl border border-border bg-surface p-4 transition-all duration-300 hover:shadow-lg hover:border-text-secondary">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-lg bg-border flex items-center justify-center">
+                        <AiOutlinePhone className="w-6 h-6 text-text-secondary" />
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-text-secondary">Active Teams</p>
-                      <p className="text-xl font-bold">
-                        {registeredEvents.filter(event => event.team_id).length}
-                      </p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-1">Phone Number</p>
+                      <p className="text-base font-semibold text-text">{profile.phoneno}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Year of Study Display */}
+                <div className="group relative overflow-hidden rounded-xl border border-border bg-surface p-4 transition-all duration-300 hover:shadow-lg hover:border-text-secondary">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-lg bg-border flex items-center justify-center">
+                        <AiOutlineBank className="w-6 h-6 text-text-secondary" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-1">Year of Study</p>
+                      <p className="text-base font-semibold text-text">{profile.yearofstudy} Year</p>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="card animate-slide-up" style={{ animationDelay: '400ms' }}>
-              <div className="card-header">
-                <h3 className="card-title">Quick Actions</h3>
-              </div>
-              <div className="space-y-3">
-                <button
-                  onClick={() => navigate('/dashboard')}
-                  className="btn btn-outline w-full justify-start"
-                >
-                  <AiOutlineCalendar className="w-4 h-4" />
-                  Browse Events
-                </button>
-                <button
-                  onClick={() => navigate('/inbox')}
-                  className="btn btn-outline w-full justify-start"
-                >
-                  <AiOutlineTeam className="w-4 h-4" />
-                  Check Invitations
-                </button>
-                <button
-                  onClick={() => navigate('/timeline')}
-                  className="btn btn-outline w-full justify-start"
-                >
-                  <AiOutlineTrophy className="w-4 h-4" />
-                  View Timeline
-                </button>
-              </div>
+            )}
             </div>
           </div>
         </div>

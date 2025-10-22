@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
 import { 
   getRegisteredEvents, 
   fetchTeamMembersOfEvent, 
@@ -218,315 +217,391 @@ const EventDetailsPage: React.FC = () => {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="bg-surface rounded-xl shadow-xl p-6 text-center">
-            <p className="text-text-secondary mb-4">Event not found.</p>
-            <Button variant="outline" onClick={() => navigate('/dashboard')}>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="max-w-md w-full bg-surface rounded-2xl p-8 shadow-lg border border-border">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M12 14a2 2 0 100-4 2 2 0 000 4M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-text mb-2">Event Not Found</h2>
+            <p className="text-text-secondary mb-6">The event you're looking for doesn't exist or has been removed.</p>
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="inline-flex items-center justify-center px-5 py-3 bg-accent text-background font-medium rounded-full hover:opacity-90 transition-opacity"
+            >
+              <AiOutlineArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
-            </Button>
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
+  const eventDate = event.date ? new Date(event.date) : null;
+  const eventMonthLabel = eventDate?.toLocaleDateString('en-US', { month: 'short' })?.toUpperCase();
+  const eventWeekdayLabel = eventDate?.toLocaleDateString('en-US', { weekday: 'long' });
+  const eventDayLabel = eventDate ? eventDate.getDate().toString().padStart(2, '0') : null;
+  const eventYearLabel = eventDate?.getFullYear();
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        
-        {/* Header with Back Button */}
-        <div className="flex items-center gap-4 mb-6">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-text-secondary hover:text-text transition-colors duration-200"
-          >
-            <AiOutlineArrowLeft className="w-5 h-5" />
-            <span>Back to Dashboard</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Event Info */}
-          <div className="lg:col-span-2 space-y-6">
-            
-            {/* Event Poster */}
-            <div className="relative rounded-2xl overflow-hidden bg-secondary border border-border">
-              <img
-                src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
-                alt={event.name}
-                className="w-full aspect-[16/9] sm:aspect-[4/3] lg:aspect-[16/10] object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/default-event-poster.jpg';
-                }}
-              />
-              {'status' in event && (
-                <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-sm font-medium shadow-lg ${
-                  event.status === 'ongoing' ? 'bg-accent text-primary' :
-                  event.status === 'upcoming' ? 'bg-accent/80 text-primary' : 'bg-text-secondary text-background'
-                }`}>
-                  {event.status}
-                </div>
-              )}
-            </div>
-
-            {/* Event Details */}
-            <div className="bg-surface rounded-2xl p-6 border border-border">
-              <h1 className="text-3xl font-bold text-text mb-4">{event.name}</h1>
-              
-              <p className="text-text-secondary leading-relaxed mb-6">{event.about}</p>
-              
-              {/* Event Info Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <AiOutlineCalendar className="w-5 h-5 text-accent" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-secondary">Date</p>
-                    <p className="font-medium text-text">
-                      {event.date ? new Date(event.date).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      }) : 'To be announced'}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <AiOutlineEnvironment className="w-5 h-5 text-accent" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-secondary">Venue</p>
-                    <p className="font-medium text-text">{event.venue}</p>
-                  </div>
-                </div>
-                
-                {'club_name' in event && event.club_name && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                      <AiOutlineBank className="w-5 h-5 text-accent" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-text-secondary">Organized by</p>
-                      <p className="font-medium text-text">{event.club_name}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {'event_type' in event && (
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                      <AiOutlineTag className="w-5 h-5 text-accent" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-text-secondary">Type</p>
-                      <p className="font-medium text-text">{event.event_type} • {event.event_category}</p>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
-                    <AiOutlineTeam className="w-5 h-5 text-accent" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-secondary">Team Size</p>
-                    <p className="font-medium text-text">
-                      {event.min_no_member === event.max_no_member 
-                        ? `${event.min_no_member} ${event.min_no_member === 1 ? 'member' : 'members'}`
-                        : `${event.min_no_member} - ${event.max_no_member} members`
-                      }
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Actions */}
-          <div className="space-y-6">
-            {/* Registration Status */}
-            {registered ? (
-              <div className="bg-accent/5 border border-accent/20 rounded-2xl p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                    <AiOutlineCheckCircle className="w-6 h-6 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-text">Successfully Registered!</h3>
-                    <p className="text-sm text-text-secondary">You're all set for this event</p>
-                  </div>
-                </div>
-                
-                {registered.team_name && (
-                  <div className="bg-surface rounded-lg p-3 border border-border">
-                    <p className="text-sm text-text-secondary">Team Name</p>
-                    <p className="font-medium text-text">{registered.team_name}</p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="bg-surface border border-border rounded-2xl p-6">
-                <h3 className="font-semibold text-text mb-4">Join This Event</h3>
-                <p className="text-text-secondary text-sm mb-6">
-                  Ready to participate? Register now to secure your spot.
-                </p>
-                <Button
-                  onClick={handleRegister}
-                  loading={registering}
-                  className="w-full"
-                  size="lg"
-                >
-                  {registering ? 'Registering...' : 'Register Now'}
-                </Button>
-              </div>
-            )}
-
-            {/* Team Management */}
-            {registered && event.max_no_member > 1 && (
-              <div className="bg-surface border border-border rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-text">Team Management</h3>
-                  <span className="text-sm text-text-secondary">
-                    {teamMembers.length}/{event.max_no_member} members
-                  </span>
-                </div>
-                
-                <div className="space-y-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowTeam(!showTeam)}
-                    className="w-full"
-                  >
-                    {showTeam ? 'Hide Team' : 'View Team'}
-                  </Button>
-                  
-                  {teamMembers.length < event.max_no_member && (
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowInvite(!showInvite)}
-                      className="w-full"
-                    >
-                      Invite Members
-                    </Button>
-                  )}
-                </div>
+      {/* Header Section */}
+      <div className="bg-background">
+        <div className="max-w-7xl mx-auto px-4 py-10">
+          <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="inline-flex items-center text-text hover:text-accent transition-colors"
+            >
+              <AiOutlineArrowLeft className="w-5 h-5 mr-2" />
+              Back to Dashboard
+            </button>
+            {'status' in event && (
+              <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition border ${
+                event.status === 'ongoing' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                event.status === 'upcoming' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : 
+                'bg-secondary text-text-secondary border-border'
+              }`}>
+                {event.status}
               </div>
             )}
           </div>
-        </div>
 
-        {/* Modals */}
-        {/* Invite Popup */}
-        {showInvite && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-surface p-6 rounded-2xl shadow-xl w-full max-w-md border border-border">
-              <h2 className="text-xl font-bold mb-4 text-text">Invite Team Member</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
-                    Roll Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter roll number"
-                    className="w-full p-3 rounded-lg border border-border bg-input-bg text-text focus:outline-none focus:ring-2 focus:ring-accent"
-                    value={inviteRoll}
-                    onChange={(e) => setInviteRoll(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && !foundUserId && handleSearchUser()}
-                  />
-                </div>
-                
-                <div className="flex gap-2">
-                  {!foundUserId ? (
-                    <Button 
-                      onClick={handleSearchUser} 
-                      disabled={!inviteRoll.trim() || searchingUser}
-                      className="flex-1"
-                    >
-                      {searchingUser ? 'Searching...' : 'Search User'}
-                    </Button>
-                  ) : (
-                    <Button 
-                      onClick={handleSendInvite}
-                      className="flex-1"
-                    >
-                      Send Invitation
-                    </Button>
-                  )}
-                  
-                  <Button 
-                    variant="outline" 
-                    onClick={closeInvitePopup}
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-                
-                {inviteStatus && (
-                  <p className={`text-sm p-2 rounded ${
-                    inviteStatus.includes('successfully') || inviteStatus.includes('found') 
-                      ? 'text-accent bg-accent/10' 
-                      : 'text-text-secondary bg-secondary/50'
-                  }`}>
-                    {inviteStatus}
-                  </p>
-                )}
+          <div className="flex flex-wrap flex-row items-end gap-3 text-text">
+            {/* Date Card */}
+            <div className="flex overflow-hidden rounded-3xl border border-border bg-surface/50 backdrop-blur-sm shadow-lg">
+              <div className="flex flex-col items-center justify-between bg-accent px-5 py-4 text-background">
+                <span className="text-[0.65rem] font-semibold tracking-[0.45em] opacity-70">
+                  {eventMonthLabel || 'TBA'}
+                </span>
+                <span className="text-2xl font-bold leading-none">
+                  {eventDayLabel || '--'}
+                </span>
+              </div>
+              <div className="relative flex flex-col justify-between px-5 py-3 min-w-[160px]">
+                <span className="text-sm font-semibold uppercase tracking-[0.3em] text-text-secondary">
+                  {eventWeekdayLabel || 'To be announced'}
+                </span>
+                <span className="text-[0.65rem] font-semibold tracking-[0.45em] text-text-secondary">
+                  {eventYearLabel || '----'}
+                </span>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Team Members Popup */}
-        {showTeam && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-surface p-6 rounded-2xl shadow-xl w-full max-w-2xl border border-border max-h-[80vh] overflow-y-auto">
-              <h2 className="text-xl font-bold mb-4 text-text">
-                Team Members ({teamMembers.length}/{event.max_no_member})
-              </h2>
-              
-              {teamMembers.length > 0 ? (
-                <div className="space-y-3 mb-6">
-                  {teamMembers.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between p-4 bg-background border border-border rounded-xl">
-                      <div className="flex-1">
-                        <div className="font-medium text-text">{member.name}</div>
-                        <div className="text-sm text-text-secondary">
-                          {member.rollno} • {member.department} • Year {member.yearofstudy}
-                        </div>
-                        <div className="text-sm text-text-secondary">{member.email}</div>
+            {/* Event Title and Description */}
+            <div className="flex-1 min-w-[200px]">
+              <h1 className="text-3xl md:text-4xl font-bold leading-tight text-text">
+                {event.name}
+              </h1>
+              <p className="mt-2 text-sm md:text-base text-text-secondary max-w-2xl">
+                {event.about}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="bg-background text-text pt-10 pb-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Left Column - Event Details */}
+            <div className="md:col-span-2">
+              {/* Event Info Cards */}
+              <div className="bg-surface rounded-2xl shadow-lg p-6 md:p-8 mb-8 border border-border">
+                <div className="flex flex-wrap gap-3 mb-6">
+                  <div className="bg-secondary px-3 py-1 rounded-full flex items-center border border-border">
+                    <AiOutlineCalendar className="w-4 h-4 mr-1 text-accent" />
+                    <span className="font-semibold text-text-secondary">
+                      {eventDate ? eventDate.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      }) : 'Date TBA'}
+                    </span>
+                  </div>
+
+                  <div className="bg-secondary px-3 py-1 rounded-full flex items-center border border-border">
+                    <AiOutlineEnvironment className="w-4 h-4 mr-1 text-accent" />
+                    <span className="font-semibold text-text-secondary">{event.venue}</span>
+                  </div>
+
+                  {'event_type' in event && (
+                    <div className="bg-secondary px-3 py-1 rounded-full flex items-center border border-border">
+                      <AiOutlineTag className="w-4 h-4 mr-1 text-accent" />
+                      <span className="font-semibold text-text-secondary">{event.event_type}</span>
+                    </div>
+                  )}
+
+                  <div className="bg-secondary px-3 py-1 rounded-full flex items-center border border-border">
+                    <AiOutlineTeam className="w-4 h-4 mr-1 text-accent" />
+                    <span className="font-semibold text-text-secondary">
+                      Team: {event.min_no_member === event.max_no_member 
+                        ? `${event.min_no_member}` 
+                        : `${event.min_no_member}-${event.max_no_member}`}
+                    </span>
+                  </div>
+                </div>
+
+                <h2 className="text-xl font-bold text-text mb-4">About This Event</h2>
+                <p className="text-text-secondary mb-8 leading-relaxed">{event.about}</p>
+
+                {/* Event Details Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-border">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-1">
+                      <AiOutlineCalendar className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-text mb-1">Date & Time</h4>
+                      <p className="text-text-secondary">
+                        {eventDate ? eventDate.toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        }) : 'To be announced'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-1">
+                      <AiOutlineEnvironment className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-text mb-1">Venue</h4>
+                      <p className="text-text-secondary">{event.venue}</p>
+                    </div>
+                  </div>
+
+                  {'club_name' in event && event.club_name && (
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <AiOutlineBank className="w-5 h-5 text-accent" />
                       </div>
-                      
-                      {currentUserRollNo && member.rollno !== currentUserRollNo && event.status !== 'past' && (
-                        <Button 
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleRemoveMember(member.id)}
-                          className="text-text-secondary hover:text-text hover:border-accent"
-                        >
-                          Remove
-                        </Button>
-                      )}
+                      <div>
+                        <h4 className="text-sm font-semibold text-text mb-1">Organized By</h4>
+                        <p className="text-text-secondary">{event.club_name}</p>
+                      </div>
                     </div>
-                  ))}
+                  )}
+
+                  {'event_type' in event && (
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <AiOutlineTag className="w-5 h-5 text-accent" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-text mb-1">Event Type</h4>
+                        <p className="text-text-secondary">{event.event_type}</p>
+                        {'event_category' in event && (
+                          <p className="text-text-secondary text-sm">{event.event_category}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-1">
+                      <AiOutlineTeam className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-semibold text-text mb-1">Team Size</h4>
+                      <p className="text-text-secondary">
+                        {event.min_no_member === event.max_no_member 
+                          ? `${event.min_no_member} ${event.min_no_member === 1 ? 'member' : 'members'}`
+                          : `${event.min_no_member} - ${event.max_no_member} members`
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Actions & Team Management */}
+            <div className="md:col-span-1">
+
+              {/* Registration Status */}
+              {registered ? (
+                <div className="bg-surface rounded-2xl shadow-lg p-6 mb-6 border border-green-500/20">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                      <AiOutlineCheckCircle className="w-6 h-6 text-green-500" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-text">Registered!</h3>
+                      <p className="text-sm text-text-secondary">You're all set</p>
+                    </div>
+                  </div>
+                  
+                  {registered.team_name && (
+                    <div className="bg-secondary rounded-lg p-3 border border-border">
+                      <p className="text-sm text-text-secondary">Team Name</p>
+                      <p className="font-medium text-text">{registered.team_name}</p>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <p className="text-text-secondary mb-6 text-center py-8">No team members found.</p>
+                <div className="bg-surface rounded-2xl shadow-lg p-6 mb-6 border border-border">
+                  <h3 className="text-lg font-bold text-text mb-4 pb-3 border-b border-border">Registration</h3>
+                  <p className="text-text-secondary text-sm mb-6">
+                    Ready to participate? Register now to secure your spot.
+                  </p>
+                  <button
+                    onClick={handleRegister}
+                    disabled={registering}
+                    className="block w-full text-center bg-accent text-background font-semibold py-3 px-6 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    {registering ? 'Registering...' : 'Register Now'}
+                  </button>
+                </div>
               )}
-              
-              <Button variant="outline" onClick={closeTeamPopup} className="w-full">
-                Close
-              </Button>
+
+              {/* Team Management */}
+              {registered && event.max_no_member > 1 && (
+                <div className="bg-surface rounded-2xl shadow-lg p-6 border border-border">
+                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
+                    <h3 className="text-lg font-bold text-text">Team Management</h3>
+                    <span className="text-sm text-text-secondary">
+                      {teamMembers.length}/{event.max_no_member}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setShowTeam(!showTeam)}
+                      className="block w-full text-center bg-secondary text-text font-semibold py-2.5 px-6 rounded-full hover:bg-button-hover transition-colors border border-border"
+                    >
+                      {showTeam ? 'Hide Team' : 'View Team'}
+                    </button>
+                    
+                    {teamMembers.length < event.max_no_member && (
+                      <button
+                        onClick={() => setShowInvite(!showInvite)}
+                        className="block w-full text-center border border-border text-text font-semibold py-2.5 px-6 rounded-full hover:bg-button-hover transition-colors"
+                      >
+                        Invite Members
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Modals */}
+      {/* Invite Popup */}
+      {showInvite && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface p-6 rounded-2xl shadow-xl w-full max-w-md border border-border">
+            <h2 className="text-xl font-bold mb-4 text-text">Invite Team Member</h2>
+            
+            <div className="space-y-4">
+              <div className="form-group">
+                <label className="form-label">
+                  Roll Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter roll number"
+                  className="form-input"
+                  value={inviteRoll}
+                  onChange={(e) => setInviteRoll(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && !foundUserId && handleSearchUser()}
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                {!foundUserId ? (
+                  <button
+                    onClick={handleSearchUser}
+                    disabled={!inviteRoll.trim() || searchingUser}
+                    className="flex-1 bg-accent text-background font-semibold py-2.5 px-6 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    {searchingUser ? 'Searching...' : 'Search User'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSendInvite}
+                    className="flex-1 bg-accent text-background font-semibold py-2.5 px-6 rounded-full hover:opacity-90 transition-opacity"
+                  >
+                    Send Invitation
+                  </button>
+                )}
+                
+                <button
+                  onClick={closeInvitePopup}
+                  className="flex-1 border border-border text-text font-semibold py-2.5 px-6 rounded-full hover:bg-button-hover transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+              
+              {inviteStatus && (
+                <p className={`text-sm p-2 rounded ${
+                  (inviteStatus?.includes('successfully') || inviteStatus?.includes('found'))
+                    ? 'text-green-400 bg-green-500/10 border border-green-500/20' 
+                    : 'text-text-secondary bg-secondary border border-border'
+                }`}>
+                  {inviteStatus}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Team Members Popup */}
+      {showTeam && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-surface p-6 rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto border border-border">
+            <h2 className="text-xl font-bold mb-4 text-text">
+              Team Members ({teamMembers.length}/{event?.max_no_member || 0})
+            </h2>
+            
+            {teamMembers.length > 0 ? (
+              <div className="space-y-3 mb-6">
+                {teamMembers.map((member) => (
+                  <div key={member.id} className="flex items-center justify-between p-4 bg-secondary border border-border rounded-xl">
+                    <div className="flex-1">
+                      <div className="font-medium text-text">{member.name}</div>
+                      <div className="text-sm text-text-secondary">
+                        {member.rollno} • {member.department} • Year {member.yearofstudy}
+                      </div>
+                      <div className="text-sm text-text-secondary">{member.email}</div>
+                    </div>
+                    
+                    {currentUserRollNo && member.rollno !== currentUserRollNo && event && 'status' in event && event.status !== 'past' && (
+                      <button
+                        onClick={() => handleRemoveMember(member.id)}
+                        className="text-text-secondary hover:text-text hover:bg-button-hover px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border border-border"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-text-secondary mb-6 text-center py-8">No team members found.</p>
+            )}
+            
+            <button
+              onClick={closeTeamPopup}
+              className="w-full border border-border text-text font-semibold py-2.5 px-6 rounded-full hover:bg-button-hover transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

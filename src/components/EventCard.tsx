@@ -32,7 +32,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) 
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-secondary text-text-secondary text-sm">
-            <img src={"/adhish_happy.png"} alt="Poster not available" className="h-24 w-24 object-contain opacity-70" />
+            <img src={"/csea.png"} alt="Poster not available" className="h-24 w-24 object-contain opacity-70" />
             <span className="ml-2">Poster not available</span>
           </div>
         )}
