@@ -2,6 +2,212 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  /* Form Styles - Unified Design System */
+  
+  /* Form Group */
+  .form-group {
+    @apply mb-4;
+  }
+
+  /* Form Labels */
+  .form-label {
+    @apply block text-sm font-medium mb-2;
+    color: var(--color-text);
+  }
+
+  /* Form Inputs and Selects */
+  .form-input {
+    @apply w-full px-4 py-3 rounded-lg transition-all duration-200;
+    background-color: var(--color-input-bg);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 0.875rem;
+  }
+
+  .form-input::placeholder {
+    color: var(--color-text-secondary);
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  }
+
+  .form-input:hover:not(:focus) {
+    border-color: var(--color-text-secondary);
+  }
+
+  /* Select specific styling */
+  select.form-input {
+    @apply cursor-pointer appearance-none pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23a3a3a3' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+  }
+
+  select.form-input option {
+    background-color: var(--color-input-bg);
+    color: var(--color-text);
+    padding: 0.5rem;
+  }
+
+  /* Error State */
+  .form-input.error {
+    border-color: #ef4444;
+  }
+
+  .form-error {
+    @apply text-xs mt-1 block;
+    color: #ef4444;
+  }
+
+  /* Disabled State */
+  .form-input:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Card Styles */
+  .card {
+    @apply rounded-2xl p-6 shadow-lg;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+
+  .card-header {
+    @apply mb-6;
+  }
+
+  .card-title {
+    @apply text-xl font-semibold mb-1;
+    color: var(--color-text);
+  }
+
+  .card-description {
+    @apply text-sm;
+    color: var(--color-text-secondary);
+  }
+
+  /* Button Styles */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 cursor-pointer text-sm;
+    border: none;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+
+  .btn-primary {
+    background-color: var(--color-accent);
+    color: var(--color-background);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    @apply opacity-90;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+  }
+
+  .btn-secondary {
+    background-color: var(--color-button-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-button-hover);
+  }
+
+  .btn-outline {
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    background-color: transparent;
+  }
+
+  .btn-outline:hover:not(:disabled) {
+    background-color: var(--color-button-hover);
+    border-color: var(--color-text-secondary);
+  }
+
+  .btn:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Glass Effect */
+  .glass-effect {
+    background-color: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(51, 51, 51, 0.5);
+  }
+
+  /* Loading Spinner */
+  .loading-spinner {
+    @apply w-5 h-5 rounded-full;
+    border: 2px solid var(--color-button-hover);
+    border-top-color: var(--color-accent);
+    animation: spin 1s linear infinite;
+  }
+
+  .loading-spinner-sm {
+    @apply w-4 h-4 rounded-full;
+    border: 2px solid var(--color-button-hover);
+    border-top-color: var(--color-accent);
+    animation: spin 1s linear infinite;
+  }
+
+  /* Animations */
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-in-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-in-out;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 :root {
   /* Dark Theme Colors */
   --color-primary: #000000;
