@@ -65,37 +65,11 @@ const DashboardPage: React.FC = () => {
     <div className="min-h-screen bg-background animate-fade-in">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Header Section */}
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-transparent rounded-2xl"></div>
-          <div className="relative card glass-effect">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-              <div className="animate-slide-up">
-                <h1 className="text-4xl lg:text-5xl font-bold mb-2">
-                  {getGreeting()}, <span className="gradient-text">{user?.name || 'Student'}</span>!
-                </h1>
-                <p className="text-text-secondary text-lg">
-                  Ready to explore new events and manage your activities?
-                </p>
-              </div>
-              <div className="flex items-center space-x-3 animate-scale-in">
-                <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                  <AiOutlineTrophy className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <div className="text-sm text-text-secondary">Your Progress</div>
-                  <div className="text-lg font-semibold">{registeredEvents.length} Events Joined</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Registered Events Section */}
         <section className="animate-fade-in" style={{ animationDelay: '400ms' }}>
           <div className="card-header">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <AiOutlineCheckCircle className="w-5 h-5 text-white" />
               </div>
               <h2 className="text-2xl font-bold">My Events</h2>
             </div>
@@ -109,7 +83,6 @@ const DashboardPage: React.FC = () => {
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-gradient-secondary rounded-lg flex items-center justify-center">
-                  <AiOutlineCalendar className="w-5 h-5 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold">Discover Events</h2>
               </div>
