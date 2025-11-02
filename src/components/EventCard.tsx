@@ -31,9 +31,8 @@ const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) 
             }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-secondary text-text-secondary text-sm">
-            <img src={"/1.jpg"} alt="Poster not available" className="h-24 w-24 object-contain opacity-70" />
-            <span className="ml-2">Poster not available</span>
+          <div className="w-full h-full bg-secondary text-text-secondary text-sm">
+            <img src={"/1.jpg"} className="w-full h-full object-cover opacity-70" />
           </div>
         )}
         {'status' in event && (
