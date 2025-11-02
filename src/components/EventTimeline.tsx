@@ -16,7 +16,7 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ registeredEvents, allEven
   // Process events for timeline display
   const timelineEvents = useMemo(() => {
     const events = mode === 'registered' 
-      ? registeredEvents.map(reg => ({
+    ? registeredEvents.map(reg => ({
           id: reg.event.id,
           name: reg.event.name,
           date: reg.event.date,
@@ -25,7 +25,8 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ registeredEvents, allEven
           teamName: reg.team_name,
           isRegistered: true,
           event_type: reg.event.event_type,
-          event_category: reg.event.event_category
+      event_category: reg.event.event_category,
+      status: 'registered'
         }))
       : allEvents.map(event => ({
           id: event.id,
@@ -70,13 +71,7 @@ const EventTimeline: React.FC<EventTimelineProps> = ({ registeredEvents, allEven
     return groups;
   }, [timelineEvents]);
 
-  // Function to determine the status color
-  const getStatusColor = (event: any) => {
-    if (event.isRegistered) return 'bg-accent';
-    if (event.status === 'ongoing') return 'bg-green-500';
-    if (event.status === 'upcoming') return 'bg-blue-500';
-    return 'bg-gray-500';
-  };
+  // Note: status color is computed inline where needed
 
   const handleEventClick = (eventId: number) => {
     navigate(`/events/${eventId}`);

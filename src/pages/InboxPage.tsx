@@ -12,15 +12,13 @@ import {
   AiOutlineCalendar,
   AiOutlineTeam,
   AiOutlineEnvironment,
-  AiOutlineBell,
-  AiOutlineInbox,
   AiOutlineCheckCircle,
   AiOutlineSync
 } from 'react-icons/ai';
 import { showToast } from '../utils/toast';
 import { useAuth } from '../context/AuthContext';
 
-type IconComponent = React.ComponentType<{ className?: string }>;
+//
 
 const InboxPage: React.FC = () => {
   const {user} = useAuth();
@@ -99,18 +97,7 @@ const InboxPage: React.FC = () => {
     navigate(`/events/${eventId}`);
   };
 
-  const statusCards: Array<{ label: string; value: number; icon: IconComponent }> = [
-    {
-      label: 'Active Events',
-      value: ongoingEvents.length,
-      icon: AiOutlineCalendar
-    },
-    {
-      label: 'Pending Invites',
-      value: invitations.length,
-      icon: AiOutlineInbox
-    }
-  ];
+  // removed unused statusCards
 
   return (
     <div className="min-h-screen bg-background text-text">

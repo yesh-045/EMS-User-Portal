@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { getRegisteredEvents, getOngoingEvents, getUpcomingEvents, fetchInvitations } from '../api';
 import type { RegisteredEvent, EventListItem, InviteWithDetails } from '../types/user';
 import EventCard from '../components/EventCard';
-import { AiOutlineCheckCircle, AiOutlineCalendar, AiOutlineFilter, AiOutlineBell, AiOutlineArrowRight } from 'react-icons/ai';
+import { AiOutlineCheckCircle, AiOutlineCalendar, AiOutlineBell, AiOutlineArrowRight } from 'react-icons/ai';
 
 type IconComponent = React.ComponentType<{ className?: string }>;
 

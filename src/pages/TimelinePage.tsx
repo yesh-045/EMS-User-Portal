@@ -8,11 +8,7 @@ import {
 } from "../api";
 import type { RegisteredEvent, EventListItem } from "../types/user";
 import Button from "../components/Button";
-import {
-  AiOutlineCalendar,
-  AiOutlineTeam,
-  AiOutlineEnvironment,
-} from "react-icons/ai";
+import { AiOutlineCalendar, AiOutlineEnvironment } from "react-icons/ai";
 
 type TimelineMode = "registered" | "all";
 
@@ -139,7 +135,7 @@ const TimelinePage: React.FC = () => {
           id: reg.event.id,
           name: reg.event.name,
           date: reg.event.date,
-          endDate: reg.event.endDate || reg.event.date,
+          endDate: reg.event.date,
           venue: reg.event.venue,
           description: reg.event.about,
           teamName: reg.team_name,
@@ -162,7 +158,7 @@ const TimelinePage: React.FC = () => {
             id: event.id,
             name: event.name,
             date: event.date,
-            endDate: event.endDate || event.date,
+            endDate: event.date,
             venue: event.venue,
             description: event.about,
             isRegistered: isReg,

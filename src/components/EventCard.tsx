@@ -26,7 +26,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, isRegistered, teamName }) 
             src={`${import.meta.env.VITE_BACKEND_URL}/event/eventposter?id=${event.id}`}
             alt={event.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-            onError={e => {
+            onError={() => {
               setImageError(true);
             }}
           />
