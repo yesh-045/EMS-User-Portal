@@ -9,8 +9,13 @@ import {
   AiOutlineClose,
   AiOutlineMail,
   AiOutlinePhone,
-  AiOutlineBank
+  AiOutlineBank,
+  AiOutlineIdcard,
+  AiOutlineCalendar,
+  AiOutlineCheckCircle
 } from 'react-icons/ai';
+
+type IconComponent = React.ComponentType<{ className?: string }>;
 
 const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -202,257 +207,283 @@ const ProfilePage: React.FC = () => {
     );
   }
 
+  const overviewCards: Array<{ label: string; value: string; description: string; icon: IconComponent }> = [
+    {
+      label: 'Roll Number',
+      value: profile.rollno,
+      description: 'Displayed on every registration you submit.',
+      icon: AiOutlineIdcard
+    },
+    {
+      label: 'Year of Study',
+      value: `${profile.yearofstudy} Year`,
+      description: 'Helps EMS surface cohort-specific opportunities.',
+      icon: AiOutlineCalendar
+    },
+    {
+      label: 'Department',
+      value: profile.department,
+      description: 'Informs clubs which audience to reach out to.',
+      icon: AiOutlineBank
+    }
+  ];
+
+  const contactDetails: Array<{ label: string; value: string; icon: IconComponent }> = [
+    {
+      label: 'Email Address',
+      value: profile.email,
+      icon: AiOutlineMail
+    },
+    {
+      label: 'Phone Number',
+      value: profile.phoneno.toString(),
+      icon: AiOutlinePhone
+    }
+  ];
+
+  
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Header Section */}
-        <div className="relative overflow-hidden rounded-2xl">
-          {/* Background */}
-          <div className="absolute inset-0 bg-surface/50 rounded-2xl"></div>
-          
-          <div className="relative bg-surface/80 backdrop-blur-sm border border-border rounded-2xl p-6 lg:p-8 shadow-xl">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-              {/* Profile Avatar and Info */}
-              <div className="flex items-center space-x-4 lg:space-x-6 animate-slide-up">
-                {/* Avatar */}
-                <div className="relative">
-                  <div className="w-20 h-20 lg:w-24 lg:h-24 bg-border rounded-full flex items-center justify-center shadow-lg">
-                    <AiOutlineUser className="w-10 h-10 lg:w-12 lg:h-12 text-text-secondary" />
-                  </div>
+    <div className="min-h-screen bg-background text-text">
+      <section className="relative overflow-hidden border-b border-border bg-surface">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent)]"></div>
+        <div className="relative max-w-6xl mx-auto px-4 py-16 lg:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-[auto_minmax(0,1fr)] gap-10 items-center">
+            <div className="flex items-start gap-6">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-3xl border border-border/70 bg-background/70 flex items-center justify-center shadow-xl">
+                  <AiOutlineUser className="w-12 h-12 text-text-secondary" />
                 </div>
-                
-                {/* User Details */}
-                <div>
-                  <h1 className="text-2xl lg:text-4xl font-bold mb-2 text-text">
-                    {profile.name}
-                  </h1>
-                  <div className="space-y-1">
-                    <p className="text-text-secondary font-medium text-sm lg:text-base flex items-center">
-                      <span className="inline-block w-2 h-2 bg-text-secondary rounded-full mr-2"></span>
-                      {profile.department}
-                    </p>
-                    <p className="text-text-secondary text-xs lg:text-sm flex items-center">
-                      <span className="inline-block w-2 h-2 bg-text-secondary rounded-full mr-2"></span>
-                      Roll No: {profile.rollno}
-                    </p>
-                  </div>
+                <div className="absolute -bottom-2 -right-2 rounded-full border border-border bg-background px-3 py-1 text-[0.6rem] uppercase tracking-[0.35em] text-text-secondary">
+                  EMS
                 </div>
               </div>
-              
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-3 animate-scale-in w-full lg:w-auto">
-                {!isEditing ? (
+              <div className="space-y-4">
+                <span className="inline-flex text-xs font-semibold uppercase tracking-[0.35em] text-text-secondary">
+                  Profile Command Center
+                </span>
+                <h1 className="text-3xl lg:text-5xl font-semibold leading-tight">
+                  {profile.name}
+                </h1>
+                <div className="flex flex-wrap gap-3 text-sm text-text-secondary">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5">
+                    <AiOutlineIdcard className="w-4 h-4" />
+                    {profile.rollno}
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5">
+                    <AiOutlineBank className="w-4 h-4" />
+                    {profile.department}
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5">
+                    <AiOutlineCheckCircle className="w-4 h-4" />
+                    {profile.yearofstudy} Year
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row lg:justify-end gap-3">
+              {!isEditing ? (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="inline-flex items-center justify-center rounded-full border border-border px-6 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-text transition-colors duration-200 hover:bg-background"
+                >
+                  <AiOutlineEdit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </button>
+              ) : (
+                <>
                   <button
-                    onClick={() => setIsEditing(true)}
-                    className="btn btn-outline w-full lg:w-auto transition-all duration-300"
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="inline-flex items-center justify-center rounded-full border border-border bg-text px-6 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-background transition-colors duration-200 hover:bg-background hover:text-text disabled:opacity-70"
                   >
-                    <AiOutlineEdit className="w-4 h-4 mr-2" />
-                    Edit Profile
+                    {saving ? (
+                      <>
+                        <div className="loading-spinner mr-2 h-4 w-4 border-2"></div>
+                        Saving
+                      </>
+                    ) : (
+                      <>
+                        <AiOutlineCheck className="w-4 h-4 mr-2" />
+                        Save Changes
+                      </>
+                    )}
                   </button>
-                ) : (
-                  <div className="flex space-x-2 w-full lg:w-auto">
-                    <button
-                      onClick={handleSave}
-                      disabled={saving}
-                      className="btn btn-primary flex-1 lg:flex-initial shadow-lg"
-                    >
-                      {saving ? (
-                        <>
-                          <div className="loading-spinner mr-2"></div>
-                          Saving...
-                        </>
-                      ) : (
-                        <>
-                          <AiOutlineCheck className="w-4 h-4 mr-2" />
-                          Save
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      className="btn btn-secondary flex-1 lg:flex-initial"
-                    >
-                      <AiOutlineClose className="w-4 h-4 mr-2" />
-                      Cancel
-                    </button>
-                  </div>
-                )}
-              </div>
+                  <button
+                    onClick={handleCancel}
+                    className="inline-flex items-center justify-center rounded-full border border-border px-6 py-3 text-sm font-semibold uppercase tracking-[0.25em] text-text-secondary transition-colors duration-200 hover:bg-background hover:text-text"
+                  >
+                    <AiOutlineClose className="w-4 h-4 mr-2" />
+                    Cancel
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Profile Information Card */}
-        <div className="relative">
-          
-          <div className="relative bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden animate-slide-up" style={{ animationDelay: '100ms' }}>
-            {/* Top Border */}
-            <div className="h-1 bg-border"></div>
-            
-            <div className="p-6 lg:p-8">
-              {/* Card Header */}
-              <div className="mb-6 pb-4 border-b border-border/50">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-1 h-6 bg-text-secondary rounded-full"></div>
-                  <h2 className="text-2xl font-bold text-text">Personal Information</h2>
+      <section className="py-16 lg:py-20">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-10">
+          <div className="space-y-8">
+            <div className="rounded-3xl border border-border bg-surface/80 p-8 shadow-2xl">
+              <div className="flex items-center justify-between gap-4 pb-6 border-b border-border/70">
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-[0.35em] text-text-secondary">Personal Details</span>
+                  <h2 className="mt-2 text-2xl font-semibold">Profile Overview</h2>
                 </div>
-                <p className="text-text-secondary text-sm ml-3">Manage your personal details and contact information</p>
+                <span className="text-xs font-semibold uppercase tracking-[0.35em] text-text-secondary">
+                  {isEditing ? 'Editing' : 'Viewing'}
+                </span>
               </div>
 
-            {isEditing ? (
-              <div className="space-y-6">
-                {/* Full Name Input */}
-                <div className="form-group">
-                  <label className="form-label flex items-center text-base">
-                    <AiOutlineUser className="w-5 h-5 inline mr-2 text-text-secondary" />
-                    Full Name
-                  </label>
-                  <div className="relative group">
-                    <input
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="form-input pl-12 transition-all duration-200 focus:shadow-lg"
-                      placeholder="Enter your full name"
-                    />
-                    <AiOutlineUser className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary transition-colors" />
-                  </div>
-                  {errors.name && <div className="form-error">{errors.name}</div>}
-                </div>
+              {isEditing ? (
+                <div className="mt-6 space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="form-group">
+                      <label className="form-label flex items-center text-sm font-semibold">
+                        <AiOutlineUser className="mr-2 h-5 w-5 text-text-secondary" />
+                        Full Name
+                      </label>
+                      <input
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="form-input text-text focus:shadow-lg"
+                        placeholder="Enter your full name"
+                      />
+                      {errors.name && <div className="form-error">{errors.name}</div>}
+                    </div>
 
-                {/* Email Input */}
-                <div className="form-group">
-                  <label className="form-label flex items-center text-base">
-                    <AiOutlineMail className="w-5 h-5 inline mr-2 text-text-secondary" />
-                    Email Address
-                  </label>
-                  <div className="relative group">
-                    <input
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="form-input pl-12 transition-all duration-200 focus:shadow-lg"
-                      placeholder="Enter your email"
-                    />
-                    <AiOutlineMail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary transition-colors" />
-                  </div>
-                  {errors.email && <div className="form-error">{errors.email}</div>}
-                </div>
+                    <div className="form-group">
+                      <label className="form-label flex items-center text-sm font-semibold">
+                        <AiOutlineMail className="mr-2 h-5 w-5 text-text-secondary" />
+                        Email Address
+                      </label>
+                      <input
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="form-input text-text focus:shadow-lg"
+                        placeholder="Enter your email"
+                      />
+                      {errors.email && <div className="form-error">{errors.email}</div>}
+                    </div>
 
-                {/* Phone and Year Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="form-group">
-                    <label className="form-label flex items-center text-base">
-                      <AiOutlinePhone className="w-5 h-5 inline mr-2 text-text-secondary" />
-                      Phone Number
-                    </label>
-                    <div className="relative group">
+                    <div className="form-group">
+                      <label className="form-label flex items-center text-sm font-semibold">
+                        <AiOutlinePhone className="mr-2 h-5 w-5 text-text-secondary" />
+                        Phone Number
+                      </label>
                       <input
                         name="phoneno"
                         type="tel"
                         value={formData.phoneno || ''}
                         onChange={handleInputChange}
-                        className="form-input pl-12 transition-all duration-200 focus:shadow-lg"
+                        className="form-input text-text focus:shadow-lg"
                         placeholder="Enter phone number"
                       />
-                      <AiOutlinePhone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-text-secondary transition-colors" />
+                      {errors.phoneno && <div className="form-error">{errors.phoneno}</div>}
                     </div>
-                    {errors.phoneno && <div className="form-error">{errors.phoneno}</div>}
+
+                    <div className="form-group">
+                      <label className="form-label flex items-center text-sm font-semibold">
+                        <AiOutlineBank className="mr-2 h-5 w-5 text-text-secondary" />
+                        Year of Study
+                      </label>
+                      <select
+                        name="yearofstudy"
+                        value={formData.yearofstudy}
+                        onChange={handleInputChange}
+                        className="form-input text-text focus:shadow-lg"
+                      >
+                        <option value={1}>1st Year</option>
+                        <option value={2}>2nd Year</option>
+                        <option value={3}>3rd Year</option>
+                        <option value={4}>4th Year</option>
+                      </select>
+                      {errors.yearofstudy && <div className="form-error">{errors.yearofstudy}</div>}
+                    </div>
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label flex items-center text-base">
-                      <AiOutlineBank className="w-5 h-5 inline mr-2 text-text-secondary" />
-                      Year of Study
+                    <label className="form-label flex items-center text-sm font-semibold">
+                      <AiOutlineBank className="mr-2 h-5 w-5 text-text-secondary" />
+                      Department
                     </label>
                     <select
-                      name="yearofstudy"
-                      value={formData.yearofstudy}
+                      name="department"
+                      value={formData.department}
                       onChange={handleInputChange}
-                      className="form-input transition-all duration-200 focus:shadow-lg"
+                      className="form-input text-text focus:shadow-lg"
                     >
-                      <option value={1}>1st Year</option>
-                      <option value={2}>2nd Year</option>
-                      <option value={3}>3rd Year</option>
-                      <option value={4}>4th Year</option>
+                      <option value="">Select your department</option>
+                      {departments.map((dept) => (
+                        <option key={dept} value={dept}>
+                          {dept}
+                        </option>
+                      ))}
                     </select>
-                    {errors.yearofstudy && <div className="form-error">{errors.yearofstudy}</div>}
+                    {errors.department && <div className="form-error">{errors.department}</div>}
                   </div>
                 </div>
-
-                {/* Department Select */}
-                <div className="form-group">
-                  <label className="form-label flex items-center text-base">
-                    <AiOutlineBank className="w-5 h-5 inline mr-2 text-text-secondary" />
-                    Department
-                  </label>
-                  <select
-                    name="department"
-                    value={formData.department}
-                    onChange={handleInputChange}
-                    className="form-input transition-all duration-200 focus:shadow-lg"
-                  >
-                    <option value="">Select your department</option>
-                    {departments.map((dept) => (
-                      <option key={dept} value={dept}>{dept}</option>
+              ) : (
+                <div className="mt-6 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {contactDetails.map((item) => (
+                      <div
+                        key={item.label}
+                        className="rounded-2xl border border-border/70 bg-background/60 p-5 transition-transform duration-300 hover:-translate-y-1 hover:border-text-secondary"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-surface/80">
+                            <item.icon className="h-6 w-6 text-text-secondary" />
+                          </div>
+                          <div className="space-y-1">
+                            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-text-secondary">
+                              {item.label}
+                            </span>
+                            <p className="text-base font-medium break-all">{item.value}</p>
+                          </div>
+                        </div>
+                      </div>
                     ))}
-                  </select>
-                  {errors.department && <div className="form-error">{errors.department}</div>}
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Email Display */}
-                <div className="group relative overflow-hidden rounded-xl border border-border bg-surface p-4 transition-all duration-300 hover:shadow-lg hover:border-text-secondary">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 rounded-lg bg-border flex items-center justify-center">
-                        <AiOutlineMail className="w-6 h-6 text-text-secondary" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-1">Email Address</p>
-                      <p className="text-base font-semibold text-text truncate">{profile.email}</p>
-                    </div>
                   </div>
-                </div>
 
-                {/* Phone Display */}
-                <div className="group relative overflow-hidden rounded-xl border border-border bg-surface p-4 transition-all duration-300 hover:shadow-lg hover:border-text-secondary">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 rounded-lg bg-border flex items-center justify-center">
-                        <AiOutlinePhone className="w-6 h-6 text-text-secondary" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-1">Phone Number</p>
-                      <p className="text-base font-semibold text-text">{profile.phoneno}</p>
-                    </div>
+                  <div className="rounded-2xl border border-border/70 bg-background/60 p-5">
+                    <span className="text-xs font-semibold uppercase tracking-[0.3em] text-text-secondary">Department</span>
+                    <p className="mt-2 text-lg font-semibold">{profile.department}</p>
+                    <p className="mt-2 text-sm text-text-secondary">
+                      Keep your department accurate so EMS can surface the most relevant events and collaborative opportunities.
+                    </p>
                   </div>
                 </div>
-
-                {/* Year of Study Display */}
-                <div className="group relative overflow-hidden rounded-xl border border-border bg-surface p-4 transition-all duration-300 hover:shadow-lg hover:border-text-secondary">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 rounded-lg bg-border flex items-center justify-center">
-                        <AiOutlineBank className="w-6 h-6 text-text-secondary" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-text-secondary uppercase tracking-wide mb-1">Year of Study</p>
-                      <p className="text-base font-semibold text-text">{profile.yearofstudy} Year</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+              )}
             </div>
           </div>
+
+          <aside className="space-y-6">
+            <div className="rounded-3xl border border-border bg-surface/70 p-6 space-y-5">
+              <span className="text-xs font-semibold uppercase tracking-[0.35em] text-text-secondary">Snapshot</span>
+              {overviewCards.map((card) => (
+                <div key={card.label} className="flex items-start gap-4 rounded-2xl border border-border/60 bg-background/70 p-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface/80">
+                    <card.icon className="h-5 w-5 text-text-secondary" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-text-secondary">{card.label}</p>
+                    <p className="text-base font-semibold">{card.value}</p>
+                    <p className="text-xs text-text-secondary">{card.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            
+          </aside>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

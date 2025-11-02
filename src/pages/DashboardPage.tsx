@@ -1,24 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Button from '../components/Button';
 import { getRegisteredEvents, getOngoingEvents, getUpcomingEvents, fetchInvitations } from '../api';
 import type { RegisteredEvent, EventListItem, InviteWithDetails } from '../types/user';
 import EventCard from '../components/EventCard';
-import RegisteredEvents from '../components/RegisteredEvents';
-import {
-  AiOutlineCheckCircle,
-  AiOutlineCalendar,
-  AiOutlineTeam,
-  AiOutlineSearch,
-  AiOutlineFilter,
-  AiOutlineTrophy,
-  AiOutlineClockCircle
-} from 'react-icons/ai';
+import { AiOutlineCheckCircle, AiOutlineCalendar, AiOutlineFilter, AiOutlineBell, AiOutlineArrowRight } from 'react-icons/ai';
+
+type IconComponent = React.ComponentType<{ className?: string }>;
 
 const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [registeredEvents, setRegisteredEvents] = useState<RegisteredEvent[]>([]);
   const [allEvents, setAllEvents] = useState<EventListItem[]>([]);
+  const [upcomingEventsList, setUpcomingEventsList] = useState<EventListItem[]>([]);
   const [invitations, setInvitations] = useState<InviteWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [eventStatus, setEventStatus] = useState<'all' | 'ongoing' | 'upcoming'>('all');
@@ -28,7 +23,7 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [regRes, ongoing, upcoming, invitationsRes] = await Promise.all([
+        const [regRes, ongoingRes, upcomingRes, invitationsRes] = await Promise.all([
           getRegisteredEvents(),
           getOngoingEvents(),
           getUpcomingEvents(),
@@ -36,7 +31,8 @@ const DashboardPage: React.FC = () => {
         ]);
 
         setRegisteredEvents(regRes.data);
-        setAllEvents([...ongoing.data, ...upcoming.data]);
+        setUpcomingEventsList(upcomingRes.data);
+        setAllEvents([...(ongoingRes.data || []), ...(upcomingRes.data || [])]);
         setInvitations(invitationsRes.data || []);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -54,150 +50,157 @@ const DashboardPage: React.FC = () => {
     return matchesStatus && matchesType;
   });
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  };
+  const firstName = user?.name ? user.name.split(' ')[0] : 'there';
+
+  const stats: Array<{ label: string; value: string; icon: IconComponent }> = [
+    { label: 'Joined', value: registeredEvents.length.toString(), icon: AiOutlineCheckCircle },
+    { label: 'Invites', value: invitations.length.toString(), icon: AiOutlineBell },
+    { label: 'Upcoming', value: upcomingEventsList.length.toString(), icon: AiOutlineCalendar }
+  ];
+
+  const quickActions: Array<{ label: string; icon: IconComponent; onClick: () => void }> = [
+    {
+      label: 'Inbox',
+      icon: AiOutlineBell,
+      onClick: () => navigate('/inbox')
+    }
+  ];
+
+  const nextEvent = upcomingEventsList[0];
+  
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        {/* Header Section */}
-        {/* Registered Events Section */}
-        <section className="animate-fade-in" style={{ animationDelay: '400ms' }}>
-          <div className="card-header">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              </div>
-              <h2 className="text-2xl font-bold">My Events</h2>
-            </div>
-          </div>
-          <RegisteredEvents />
-        </section>
-
-        {/* All Events Section with Filters */}
-        <section className="space-y-6 animate-fade-in" style={{ animationDelay: '500ms' }}>
-          <div className="card-header">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-secondary rounded-lg flex items-center justify-center">
+    <div className="min-h-screen bg-background text-text">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* Top hero row */}
+  <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_720px] gap-8 mb-8 items-start">
+          <div className="flex flex-col gap-4">
+            <div className="rounded-3xl border border-border bg-surface/70 p-8 shadow-lg">
+              <div className="flex items-start gap-6">
+                <div className="flex-1">
+                  <h1 className="text-4xl font-bold">Hey, {firstName}</h1>
+                  <p className="mt-2 text-sm text-text-secondary">Quick view of your EMS activity</p>
                 </div>
-                <h2 className="text-2xl font-bold">Discover Events</h2>
-              </div>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`btn ${showFilters ? 'btn-primary' : 'btn-outline'} transition-all duration-300`}
-              >
-                <AiOutlineFilter className={`w-4 h-4 mr-2 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-                <span>{showFilters ? 'Hide Filters' : 'Show Filters'}</span>
-              </button>
-            </div>
-          </div>
 
-          {/* Enhanced Filter Options */}
-          {showFilters && (
-            <div className="relative">
-              <div className="bg-surface border border-border rounded-2xl shadow-xl overflow-hidden animate-slide-up">
-                {/* Top Border */}
-                <div className="h-1 bg-border"></div>
-                
-                <div className="p-6 lg:p-8">
-                  {/* Filter Header */}
-                  <div className="mb-6 pb-4 border-b border-border/50">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div className="w-1 h-6 bg-text-secondary rounded-full"></div>
-                      <h3 className="text-xl font-bold text-text">Filter Events</h3>
-                    </div>
-                    <p className="text-text-secondary text-sm ml-3">Customize your event discovery experience</p>
-                  </div>
+                <div className="w-56 flex flex-col gap-3">
+                  {quickActions.map((a) => (
+                    <button
+                      key={a.label}
+                      onClick={a.onClick}
+                      className="flex items-center justify-between rounded-full border border-border bg-background/80 px-4 py-3 text-xs font-semibold uppercase tracking-[0.25em] hover:bg-text hover:text-background"
+                    >
+                      <span className="flex items-center gap-2"><a.icon className="h-4 w-4" />{a.label}</span>
+                      <AiOutlineArrowRight className="h-4 w-4" />
+                    </button>
+                  ))}
 
-                  {/* Filter Controls */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="form-group">
-                      <label className="form-label flex items-center text-base">
-                        <AiOutlineClockCircle className="w-5 h-5 inline mr-2 text-text-secondary" />
-                        Event Status
-                      </label>
-                      <select
-                        className="form-input transition-all duration-200 focus:shadow-lg cursor-pointer"
-                        value={eventStatus}
-                        onChange={(e) => setEventStatus(e.target.value as any)}
-                      >
-                        <option value="all">All Status</option>
-                        <option value="ongoing">Ongoing</option>
-                        <option value="upcoming">Upcoming</option>
-                      </select>
+                  <div className="rounded-2xl border border-border bg-background/80 p-3 text-sm text-text-secondary">
+                      {nextEvent ? (
+                        <div>
+                          <div className="text-xs uppercase tracking-[0.25em]">Next</div>
+                          <div className="mt-2 font-semibold">{nextEvent.name}</div>
+                          <div className="text-xs mt-1 text-text-secondary">{nextEvent.date ? new Date(nextEvent.date).toLocaleDateString() : 'TBA'}</div>
+                        </div>
+                      ) : (
+                        <div>No upcoming events</div>
+                      )}
                     </div>
+
                     
-                    <div className="form-group">
-                      <label className="form-label flex items-center text-base">
-                        <AiOutlineTrophy className="w-5 h-5 inline mr-2 text-text-secondary" />
-                        Event Type
-                      </label>
-                      <select
-                        className="form-input transition-all duration-200 focus:shadow-lg cursor-pointer"
-                        value={eventType}
-                        onChange={(e) => setEventType(e.target.value as any)}
-                      >
-                        <option value="all">All Types</option>
-                        <option value="technical">Technical</option>
-                        <option value="non-technical">Non-Technical</option>
-                      </select>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
-          )}
 
-          {/* Events Grid */}
-          {loading ? (
-            <div className="card">
-              <div className="flex flex-col items-center justify-center py-16">
-                <div className="loading-spinner mb-4"></div>
-                <p className="text-text-secondary text-lg">Loading amazing events for you...</p>
-              </div>
-            </div>
-          ) : filteredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredEvents.map((event, index) => (
-                <div
-                  key={event.id}
-                  className="animate-scale-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <EventCard
-                    event={event}
-                    isRegistered={registeredEvents.some(
-                      reg => reg.event.id === event.id
-                    )}
-                  />
+            {/* Bottom area rendered below the hero; larger circles now centered */}
+            <div className="mt-6 flex items-center justify-center gap-8">
+              {stats.map(s => (
+                <div key={s.label} className="flex flex-col items-center justify-center w-24 h-24 rounded-full border border-border bg-background/20 text-center text-sm">
+                  <div className="text-sm text-text-secondary uppercase tracking-[0.06em]">{s.label.split(':')[0]}</div>
+                  <div className="mt-1 text-2xl font-semibold">{s.value}</div>
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="card text-center py-16">
-              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center">
-                <AiOutlineSearch className="w-12 h-12 text-text-secondary" />
+          </div>
+
+          <div className="space-y-6">
+            {/* Fixed-height My Events panel with internal horizontal scroller */}
+            <div className="rounded-3xl border border-border bg-surface/70 p-6 h-[460px] flex flex-col overflow-hidden w-full max-w-[720px]">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">My Events</h3>
+                <span className="text-xs text-text-secondary">{registeredEvents.length}</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">No Events Found</h3>
-              <p className="text-text-secondary mb-6 max-w-md mx-auto">
-                We couldn't find any events matching your current filters. Try adjusting your search criteria or check back later for new events.
-              </p>
-              <button
-                onClick={() => {
-                  setEventStatus('all');
-                  setEventType('all');
-                  setShowFilters(false);
-                }}
-                className="btn btn-primary"
-              >
-                Clear Filters
-              </button>
+
+              <div className="mt-4 flex-1">
+                {registeredEvents.length === 0 ? (
+                  <div className="text-sm text-text-secondary">You haven't joined any events yet.</div>
+                ) : (
+                  <div className="h-full flex flex-col">
+                    <div className="flex-1 overflow-x-auto overflow-y-hidden -mx-3 mt-3 scrollbar-hide snap-x snap-mandatory scroll-smooth"
+                      style={{ WebkitOverflowScrolling: 'touch' }}
+                    >
+                      <div className="flex gap-4 px-3 items-start">
+                        {registeredEvents.slice(0, 8).map(reg => (
+                          <div key={`${reg.team_id}-${reg.event.id}`} className="w-56 flex-shrink-0 snap-start">
+                            <EventCard event={reg.event} isRegistered={true} teamName={reg.team_name} />
+                          </div>
+                        ))}
+                        {registeredEvents.length > 8 && (
+                          <div className="w-56 flex-shrink-0 flex items-center justify-center rounded-xl border border-border bg-background/70 snap-start">
+                            <button onClick={() => navigate('/profile')} className="text-sm font-semibold">View all</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* optional: small pager or hint */}
+                    <div className="mt-3 text-xs text-text-secondary">Swipe right to view more</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Discover becomes full-width below */}
+        <section className="rounded-3xl border border-border bg-surface/70 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-semibold">Discover more events</h2>
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowFilters(prev => !prev)} className="rounded-full border border-border px-3 py-2 text-xs">{showFilters ? 'Hide' : 'Filter'}</button>
+            </div>
+          </div>
+
+          {showFilters && (
+            <div className="mb-4 rounded-2xl border border-border bg-background/70 p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <select className="form-input" value={eventStatus} onChange={(e) => setEventStatus(e.target.value as any)}>
+                  <option value="all">All</option>
+                  <option value="ongoing">Ongoing</option>
+                  <option value="upcoming">Upcoming</option>
+                </select>
+                <select className="form-input" value={eventType} onChange={(e) => setEventType(e.target.value as any)}>
+                  <option value="all">All</option>
+                  <option value="technical">Technical</option>
+                  <option value="non-technical">Non-Technical</option>
+                </select>
+                <div></div>
+              </div>
             </div>
           )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading ? (
+              [...Array(6)].map((_, i) => (
+                <div key={i} className="h-40 rounded-2xl border border-border bg-background/40 animate-pulse"></div>
+              ))
+            ) : filteredEvents.length > 0 ? (
+              filteredEvents.map(event => (
+                <EventCard key={event.id} event={event} isRegistered={registeredEvents.some(r => r.event.id === event.id)} />
+              ))
+            ) : (
+              <div className="col-span-full text-center text-text-secondary p-8 rounded-2xl border border-border bg-background/70">No events found</div>
+            )}
+          </div>
         </section>
       </div>
     </div>

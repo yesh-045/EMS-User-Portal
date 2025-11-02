@@ -14,6 +14,7 @@ import {
 import type { EventListItem, RegisteredEvent, TeamMember } from '../types/user';
 import { showToast } from '../utils/toast';
 import { AiOutlineArrowLeft, AiOutlineCalendar, AiOutlineEnvironment, AiOutlineTag, AiOutlineTeam, AiOutlineCheckCircle, AiOutlineBank } from 'react-icons/ai';
+import type { AxiosError } from 'axios';
 
 const EventDetailsPage: React.FC = () => {
   const { eventId } = useParams<{ eventId: string }>();
@@ -30,6 +31,7 @@ const EventDetailsPage: React.FC = () => {
   const [foundUserId, setFoundUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
+  const [teamName, setTeamName] = useState('');
 
   useEffect(() => {
     const fetchRollNo = async () => {
@@ -90,26 +92,27 @@ const EventDetailsPage: React.FC = () => {
   const handleRegister = async () => {
     if (!event || !eventId) return;
 
+    const requiresTeamName = event.max_no_member > 1;
+
+    if (requiresTeamName && !teamName.trim()) {
+      showToast.error('Please enter a team name to continue.');
+      return;
+    }
+
     setRegistering(true);
     try {
-      let teamName = '';
-      if (event.min_no_member > 1) {
-        teamName = prompt('Enter team name:') || '';
-        if (!teamName) {
-          setRegistering(false);
-          return;
-        }
-      }
-
       await registerForEvent({
         event_id: parseInt(eventId),
-        teamName: teamName || undefined
+        teamName: requiresTeamName ? teamName.trim() : undefined
       });
 
+      setTeamName('');
       window.location.reload();
     } catch (error) {
       console.error('Registration error:', error);
-      showToast.error('Registration failed. Please try again.');
+      const err = error as AxiosError<{ message?: string }>;
+      const responseMessage = err.response?.data?.message;
+      showToast.error(responseMessage || 'Registration failed. Please try again.');
     } finally {
       setRegistering(false);
     }
@@ -452,9 +455,31 @@ const EventDetailsPage: React.FC = () => {
                   <p className="text-text-secondary text-sm mb-6">
                     Ready to participate? Register now to secure your spot.
                   </p>
+
+                  {event.max_no_member > 1 && (
+                    <div className="mb-6 space-y-2">
+                      <label htmlFor="teamName" className="text-sm font-semibold text-text">
+                        Team Name
+                      </label>
+                      <input
+                        id="teamName"
+                        type="text"
+                        className="w-full rounded-xl border border-border bg-background/80 px-4 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-accent/40"
+                        placeholder="Enter your team name"
+                        value={teamName}
+                        onChange={(e) => setTeamName(e.target.value)}
+                      />
+                      <p className="text-xs text-text-secondary">
+                        Provide a name that helps your teammates recognize the group.
+                      </p>
+                    </div>
+                  )}
+
                   <button
                     onClick={handleRegister}
-                    disabled={registering}
+                    disabled={
+                      registering || (event.max_no_member > 1 && !teamName.trim())
+                    }
                     className="block w-full text-center bg-accent text-background font-semibold py-3 px-6 rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
                     {registering ? 'Registering...' : 'Register Now'}
